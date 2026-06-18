@@ -1,0 +1,764 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>WiseLabs — AI Interview Prep, in Public</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg: #0D1B2A;
+  --surface: #111827;
+  --surface2: #1a2744;
+  --violet: #7C3AED;
+  --violet-light: #a78bfa;
+  --gold: #F59E0B;
+  --gold-light: #fcd34d;
+  --white: #F9FAFB;
+  --muted: #6B7280;
+  --border: rgba(124,58,237,0.2);
+  --green: #10B981;
+}
+
+html { scroll-behavior: smooth; }
+
+body {
+  background: var(--bg);
+  color: var(--white);
+  font-family: 'Inter', sans-serif;
+  line-height: 1.6;
+  overflow-x: hidden;
+}
+
+/* ── NAV ── */
+nav {
+  position: fixed; top: 0; left: 0; right: 0;
+  z-index: 100;
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 20px 48px;
+  background: rgba(13,27,42,0.85);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid rgba(124,58,237,0.12);
+}
+.nav-logo {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 22px; font-weight: 700;
+  color: var(--white);
+  text-decoration: none;
+  letter-spacing: -0.5px;
+}
+.nav-logo span { color: var(--violet-light); }
+.nav-links {
+  display: flex; gap: 32px; list-style: none;
+}
+.nav-links a {
+  color: var(--muted);
+  text-decoration: none;
+  font-size: 14px; font-weight: 500;
+  transition: color 0.2s;
+}
+.nav-links a:hover { color: var(--white); }
+.nav-cta {
+  background: var(--violet);
+  color: white;
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 14px; font-weight: 600;
+  padding: 10px 22px; border-radius: 8px;
+  text-decoration: none;
+  transition: background 0.2s, transform 0.15s;
+}
+.nav-cta:hover { background: #6d28d9; transform: translateY(-1px); }
+
+/* ── HERO ── */
+.hero {
+  min-height: 100vh;
+  display: flex; flex-direction: column;
+  justify-content: center; align-items: flex-start;
+  padding: 140px 48px 80px;
+  max-width: 1200px; margin: 0 auto;
+  position: relative;
+}
+
+.hero-eyebrow {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 12px; font-weight: 600;
+  letter-spacing: 3px; text-transform: uppercase;
+  color: var(--violet-light);
+  margin-bottom: 20px;
+  display: flex; align-items: center; gap: 10px;
+}
+.hero-eyebrow::before {
+  content: '';
+  display: inline-block;
+  width: 24px; height: 2px;
+  background: var(--violet-light);
+}
+
+.hero h1 {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: clamp(40px, 6vw, 80px);
+  font-weight: 700;
+  line-height: 1.05;
+  letter-spacing: -2px;
+  max-width: 860px;
+  margin-bottom: 24px;
+}
+.hero h1 em {
+  font-style: normal;
+  color: var(--violet-light);
+}
+.hero h1 .gold { color: var(--gold); }
+
+.hero-sub {
+  font-size: 18px; color: rgba(249,250,251,0.65);
+  max-width: 560px; margin-bottom: 40px;
+  line-height: 1.7;
+}
+
+.hero-actions {
+  display: flex; gap: 16px; align-items: center;
+  flex-wrap: wrap;
+}
+.btn-primary {
+  background: var(--violet);
+  color: white;
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 15px; font-weight: 600;
+  padding: 14px 28px; border-radius: 10px;
+  text-decoration: none;
+  display: flex; align-items: center; gap: 8px;
+  transition: background 0.2s, transform 0.15s;
+  box-shadow: 0 4px 24px rgba(124,58,237,0.35);
+}
+.btn-primary:hover { background: #6d28d9; transform: translateY(-2px); }
+.btn-secondary {
+  color: var(--muted);
+  font-size: 15px; font-weight: 500;
+  text-decoration: none;
+  display: flex; align-items: center; gap: 8px;
+  transition: color 0.2s;
+  padding: 14px 4px;
+}
+.btn-secondary:hover { color: var(--white); }
+.btn-secondary svg { transition: transform 0.2s; }
+.btn-secondary:hover svg { transform: translateX(4px); }
+
+/* ── TERMINAL ── */
+.terminal {
+  margin-top: 56px;
+  background: #070F1A;
+  border: 1px solid rgba(124,58,237,0.3);
+  border-radius: 14px;
+  width: 100%; max-width: 640px;
+  overflow: hidden;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.4), 0 0 0 1px rgba(124,58,237,0.1);
+}
+.terminal-bar {
+  background: #111827;
+  padding: 12px 18px;
+  display: flex; align-items: center; gap: 8px;
+  border-bottom: 1px solid rgba(124,58,237,0.15);
+}
+.terminal-dot {
+  width: 12px; height: 12px; border-radius: 50%;
+}
+.terminal-bar-title {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 12px; color: var(--muted);
+  margin-left: 8px;
+}
+.terminal-body {
+  padding: 20px 24px;
+  font-family: 'Courier New', monospace;
+  font-size: 14px; line-height: 2;
+  min-height: 160px;
+}
+.terminal-prompt { color: var(--violet-light); }
+.terminal-cmd { color: #e5e7eb; }
+.terminal-output { color: var(--green); }
+.terminal-topic { color: var(--gold); font-weight: 600; }
+.cursor {
+  display: inline-block;
+  width: 8px; height: 16px;
+  background: var(--violet-light);
+  vertical-align: middle;
+  animation: blink 1s step-end infinite;
+}
+@keyframes blink { 0%,100%{opacity:1} 50%{opacity:0} }
+
+/* ── SECTION COMMON ── */
+section { padding: 96px 48px; max-width: 1200px; margin: 0 auto; }
+.section-eyebrow {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 11px; font-weight: 700;
+  letter-spacing: 3px; text-transform: uppercase;
+  color: var(--violet-light);
+  margin-bottom: 12px;
+}
+.section-title {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: clamp(28px, 3.5vw, 44px);
+  font-weight: 700; letter-spacing: -1px;
+  line-height: 1.15; margin-bottom: 16px;
+}
+.section-sub {
+  font-size: 17px; color: rgba(249,250,251,0.6);
+  max-width: 560px; margin-bottom: 48px; line-height: 1.7;
+}
+
+/* ── STAT BAR ── */
+.stat-bar {
+  background: var(--surface);
+  border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+  padding: 32px 48px;
+}
+.stat-bar-inner {
+  max-width: 1200px; margin: 0 auto;
+  display: flex; gap: 0;
+}
+.stat-item {
+  flex: 1;
+  text-align: center;
+  padding: 0 24px;
+  border-right: 1px solid var(--border);
+}
+.stat-item:last-child { border-right: none; }
+.stat-num {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 36px; font-weight: 700;
+  color: var(--violet-light);
+  letter-spacing: -1px;
+}
+.stat-label {
+  font-size: 13px; color: var(--muted); margin-top: 4px;
+}
+
+/* ── CONTENT PILLARS ── */
+.pillars-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 24px;
+}
+.pillar-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 32px;
+  transition: border-color 0.25s, transform 0.2s;
+  text-decoration: none; color: inherit;
+  display: block;
+  position: relative; overflow: hidden;
+}
+.pillar-card::before {
+  content: '';
+  position: absolute; top: 0; left: 0; right: 0;
+  height: 3px;
+  opacity: 0; transition: opacity 0.25s;
+}
+.pillar-card.yt::before { background: #FF0000; }
+.pillar-card.ig::before { background: linear-gradient(90deg, #E1306C, #833AB4); }
+.pillar-card.blog::before { background: var(--gold); }
+.pillar-card:hover { border-color: rgba(124,58,237,0.5); transform: translateY(-4px); }
+.pillar-card:hover::before { opacity: 1; }
+.pillar-icon {
+  font-size: 32px; margin-bottom: 20px;
+  display: block;
+}
+.pillar-card h3 {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 20px; font-weight: 700;
+  margin-bottom: 10px;
+}
+.pillar-card p {
+  font-size: 15px; color: rgba(249,250,251,0.6);
+  line-height: 1.65; margin-bottom: 20px;
+}
+.pillar-link {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 13px; font-weight: 600;
+  color: var(--violet-light);
+  display: flex; align-items: center; gap: 6px;
+}
+
+/* ── TOPICS ROADMAP ── */
+.topics-section { background: var(--surface); padding: 96px 0; }
+.topics-inner { max-width: 1200px; margin: 0 auto; padding: 0 48px; }
+
+.topics-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 16px;
+}
+.topic-card {
+  background: var(--bg);
+  border: 1px solid rgba(124,58,237,0.15);
+  border-radius: 12px;
+  padding: 20px 22px;
+  transition: border-color 0.2s, background 0.2s;
+  cursor: default;
+}
+.topic-card:hover {
+  border-color: rgba(124,58,237,0.5);
+  background: var(--surface2);
+}
+.topic-card.done { border-color: rgba(16,185,129,0.3); }
+.topic-card.done:hover { border-color: rgba(16,185,129,0.6); }
+.topic-status {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 10px; font-weight: 700;
+  letter-spacing: 2px; text-transform: uppercase;
+  margin-bottom: 8px;
+}
+.topic-status.live { color: var(--green); }
+.topic-status.soon { color: var(--muted); }
+.topic-name {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 15px; font-weight: 600;
+  color: var(--white); line-height: 1.3;
+}
+.topic-day {
+  font-size: 12px; color: var(--muted);
+  margin-top: 6px;
+}
+
+/* ── ABOUT ── */
+.about-strip {
+  display: grid; grid-template-columns: 1fr 1fr;
+  gap: 64px; align-items: center;
+}
+.about-tag {
+  display: inline-block;
+  background: rgba(124,58,237,0.15);
+  border: 1px solid rgba(124,58,237,0.35);
+  color: var(--violet-light);
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 12px; font-weight: 600;
+  padding: 4px 12px; border-radius: 20px;
+  margin-bottom: 20px;
+}
+.about-strip h2 {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: clamp(26px, 3vw, 38px);
+  font-weight: 700; letter-spacing: -1px;
+  line-height: 1.2; margin-bottom: 20px;
+}
+.about-strip p {
+  font-size: 16px; color: rgba(249,250,251,0.65);
+  line-height: 1.75; margin-bottom: 16px;
+}
+.about-facts {
+  display: flex; flex-direction: column; gap: 16px;
+}
+.fact {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 20px 24px;
+  display: flex; align-items: flex-start; gap: 16px;
+}
+.fact-icon { font-size: 24px; flex-shrink: 0; margin-top: 2px; }
+.fact-text { font-size: 15px; color: rgba(249,250,251,0.75); line-height: 1.5; }
+.fact-text strong {
+  display: block; color: var(--white);
+  font-family: 'Space Grotesk', sans-serif;
+  font-weight: 600; margin-bottom: 2px;
+}
+
+/* ── CTA SECTION ── */
+.cta-section {
+  text-align: center;
+  padding: 100px 48px;
+  max-width: 1200px; margin: 0 auto;
+}
+.cta-glow {
+  background: radial-gradient(ellipse at center, rgba(124,58,237,0.15) 0%, transparent 70%);
+  padding: 80px 48px;
+  border-radius: 24px;
+  border: 1px solid rgba(124,58,237,0.2);
+}
+.cta-section h2 {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: clamp(30px, 4vw, 52px);
+  font-weight: 700; letter-spacing: -1.5px;
+  line-height: 1.1; margin-bottom: 16px;
+}
+.cta-section h2 em { font-style: normal; color: var(--violet-light); }
+.cta-section p {
+  font-size: 18px; color: rgba(249,250,251,0.6);
+  margin-bottom: 40px; max-width: 480px; margin-left: auto; margin-right: auto;
+}
+.cta-buttons { display: flex; gap: 16px; justify-content: center; flex-wrap: wrap; }
+
+/* ── FOOTER ── */
+footer {
+  border-top: 1px solid var(--border);
+  padding: 40px 48px;
+  max-width: 1200px; margin: 0 auto;
+  display: flex; justify-content: space-between; align-items: center;
+  flex-wrap: wrap; gap: 16px;
+}
+.footer-logo {
+  font-family: 'Space Grotesk', sans-serif;
+  font-weight: 700; font-size: 18px;
+  color: var(--white); text-decoration: none;
+}
+.footer-logo span { color: var(--violet-light); }
+.footer-note { font-size: 13px; color: var(--muted); }
+.footer-links { display: flex; gap: 24px; }
+.footer-links a {
+  font-size: 13px; color: var(--muted);
+  text-decoration: none; transition: color 0.2s;
+}
+.footer-links a:hover { color: var(--white); }
+
+/* ── FULL-WIDTH WRAPPERS ── */
+.full-width-dark { background: var(--surface); }
+
+/* ── RESPONSIVE ── */
+@media (max-width: 768px) {
+  nav { padding: 16px 24px; }
+  .nav-links { display: none; }
+  .hero { padding: 120px 24px 60px; }
+  section { padding: 64px 24px; }
+  .pillars-grid { grid-template-columns: 1fr; }
+  .about-strip { grid-template-columns: 1fr; gap: 40px; }
+  .stat-bar-inner { flex-wrap: wrap; }
+  .stat-item { flex: 1 1 45%; border-right: none; border-bottom: 1px solid var(--border); padding: 16px; }
+  .stat-item:last-child { border-bottom: none; }
+  footer { flex-direction: column; align-items: flex-start; padding: 32px 24px; }
+  .topics-inner { padding: 0 24px; }
+  .cta-section { padding: 60px 24px; }
+  .cta-glow { padding: 48px 24px; }
+}
+</style>
+</head>
+<body>
+
+<!-- ══════════ NAV ══════════ -->
+<nav>
+  <a href="#" class="nav-logo">Wise<span>Labs</span></a>
+  <ul class="nav-links">
+    <li><a href="#topics">Topics</a></li>
+    <li><a href="#content">Content</a></li>
+    <li><a href="#about">About</a></li>
+  </ul>
+  <a href="https://youtube.com/@wiselabs" target="_blank" class="nav-cta">Subscribe on YouTube →</a>
+</nav>
+
+<!-- ══════════ HERO ══════════ -->
+<div style="max-width:1200px;margin:0 auto;">
+  <div class="hero">
+    <div class="hero-eyebrow">AI Interview Prep · In Public</div>
+    <h1>Cracking <em>top-tier AI</em> interviews — <span class="gold">one topic at a time</span></h1>
+    <p class="hero-sub">A senior engineer documents the full pivot to AI engineering. Every concept explained, every interview topic broken down — on YouTube, Instagram, and here.</p>
+    <div class="hero-actions">
+      <a href="https://youtube.com/@wiselabs" target="_blank" class="btn-primary">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M21.8 8S21.6 6.4 20.9 5.7c-.8-.8-1.7-.8-2.1-.9C15.6 4.7 12 4.7 12 4.7s-3.6 0-6.8.1c-.4.1-1.3.1-2.1.9C2.4 6.4 2.2 8 2.2 8S2 9.8 2 11.7v1.7c0 1.9.2 3.7.2 3.7s.2 1.6.9 2.3c.8.8 1.9.8 2.4.9C7.2 20.3 12 20.3 12 20.3s3.6 0 6.8-.2c.4-.1 1.3-.1 2.1-.9.7-.7.9-2.3.9-2.3s.2-1.8.2-3.7v-1.7C22 9.8 21.8 8 21.8 8zM9.7 15.5V8.9l5.8 3.3-5.8 3.3z"/></svg>
+        Subscribe on YouTube
+      </a>
+      <a href="#topics" class="btn-secondary">
+        Browse topics
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+      </a>
+    </div>
+
+    <!-- Terminal -->
+    <div class="terminal">
+      <div class="terminal-bar">
+        <div class="terminal-dot" style="background:#ff5f57"></div>
+        <div class="terminal-dot" style="background:#febc2e"></div>
+        <div class="terminal-dot" style="background:#28c840"></div>
+        <span class="terminal-bar-title">wiselabs — ai-prep-roadmap</span>
+      </div>
+      <div class="terminal-body" id="terminal-body">
+        <div><span class="terminal-prompt">$ </span><span class="terminal-cmd">wiselabs start --topic</span></div>
+        <div id="terminal-output"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════ STAT BAR ══════════ -->
+<div class="stat-bar">
+  <div class="stat-bar-inner">
+    <div class="stat-item">
+      <div class="stat-num">50+</div>
+      <div class="stat-label">AI topics on the roadmap</div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-num">10</div>
+      <div class="stat-label">years engineering experience</div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-num">100%</div>
+      <div class="stat-label">in public, no gatekeeping</div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-num">Free</div>
+      <div class="stat-label">all core content, always</div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════ CONTENT PILLARS ══════════ -->
+<section id="content">
+  <div class="section-eyebrow">Where to find the content</div>
+  <h2 class="section-title">Three ways to learn with WiseLabs</h2>
+  <p class="section-sub">Same concepts, three formats. Watch it, scroll it, or read it — whatever fits how you learn.</p>
+  <div class="pillars-grid">
+    <a href="https://youtube.com/@wiselabs" target="_blank" class="pillar-card yt">
+      <span class="pillar-icon">▶️</span>
+      <h3>YouTube</h3>
+      <p>Full walkthroughs with screen sharing and live diagrams. Every topic gets its own video — explained like you're pairing with a senior engineer.</p>
+      <span class="pillar-link">Subscribe → Watch now <span>↗</span></span>
+    </a>
+    <a href="https://instagram.com/wiselabs.in" target="_blank" class="pillar-card ig">
+      <span class="pillar-icon">📲</span>
+      <h3>Instagram</h3>
+      <p>Carousel breakdowns of each concept — visual, fast, swipeable. Ideal for a quick refresh before an interview or commute-sized learning.</p>
+      <span class="pillar-link">Follow on Instagram <span>↗</span></span>
+    </a>
+    <a href="#topics" class="pillar-card blog">
+      <span class="pillar-icon">📝</span>
+      <h3>Blog Posts</h3>
+      <p>Deep-dive written posts for every topic. Reference them while coding, bookmark them before interviews, or read when you want the full picture.</p>
+      <span class="pillar-link">Browse posts <span>↗</span></span>
+    </a>
+  </div>
+</section>
+
+<!-- ══════════ TOPICS ROADMAP ══════════ -->
+<div class="full-width-dark">
+  <div class="topics-section">
+    <div class="topics-inner">
+      <div class="section-eyebrow">The Roadmap</div>
+      <h2 class="section-title">Topics covered — and coming</h2>
+      <p class="section-sub" style="margin-bottom:40px">Built around real AI engineering interview rounds at top-tier companies. Every topic Akanksha learns, you learn.</p>
+      <div class="topics-grid">
+        <!-- Day 1 — live -->
+        <div class="topic-card done">
+          <div class="topic-status live">● Live</div>
+          <div class="topic-name">Embeddings & Vector Representations</div>
+          <div class="topic-day">Day 1</div>
+        </div>
+        <div class="topic-card done">
+          <div class="topic-status live">● Live</div>
+          <div class="topic-name">Semantic Search</div>
+          <div class="topic-day">Day 1</div>
+        </div>
+        <div class="topic-card done">
+          <div class="topic-status live">● Live</div>
+          <div class="topic-name">Embedding Model Families</div>
+          <div class="topic-day">Day 1</div>
+        </div>
+        <div class="topic-card done">
+          <div class="topic-status live">● Live</div>
+          <div class="topic-name">Cosine Similarity & Distance Metrics</div>
+          <div class="topic-day">Day 1</div>
+        </div>
+        <!-- Coming soon -->
+        <div class="topic-card">
+          <div class="topic-status soon">○ Coming</div>
+          <div class="topic-name">Vector Databases — Chroma, Pinecone, pgvector</div>
+          <div class="topic-day">Day 2</div>
+        </div>
+        <div class="topic-card">
+          <div class="topic-status soon">○ Coming</div>
+          <div class="topic-name">RAG — Retrieval Augmented Generation</div>
+          <div class="topic-day">Day 3</div>
+        </div>
+        <div class="topic-card">
+          <div class="topic-status soon">○ Coming</div>
+          <div class="topic-name">Chunking Strategies for RAG</div>
+          <div class="topic-day">Day 4</div>
+        </div>
+        <div class="topic-card">
+          <div class="topic-status soon">○ Coming</div>
+          <div class="topic-name">LLM Fundamentals — Transformers & Attention</div>
+          <div class="topic-day">Day 5</div>
+        </div>
+        <div class="topic-card">
+          <div class="topic-status soon">○ Coming</div>
+          <div class="topic-name">Prompt Engineering & Chain of Thought</div>
+          <div class="topic-day">Day 6</div>
+        </div>
+        <div class="topic-card">
+          <div class="topic-status soon">○ Coming</div>
+          <div class="topic-name">Fine-tuning vs RAG — When to use which</div>
+          <div class="topic-day">Day 7</div>
+        </div>
+        <div class="topic-card">
+          <div class="topic-status soon">○ Coming</div>
+          <div class="topic-name">LangChain & LangGraph</div>
+          <div class="topic-day">Day 8</div>
+        </div>
+        <div class="topic-card">
+          <div class="topic-status soon">○ Coming</div>
+          <div class="topic-name">Agentic AI — Tools, Planning, Memory</div>
+          <div class="topic-day">Day 9</div>
+        </div>
+        <div class="topic-card">
+          <div class="topic-status soon">○ Coming</div>
+          <div class="topic-name">Evaluation — RAGAS, Faithfulness, Relevancy</div>
+          <div class="topic-day">Day 10</div>
+        </div>
+        <div class="topic-card">
+          <div class="topic-status soon">○ Coming</div>
+          <div class="topic-name">System Design for AI — Production RAG</div>
+          <div class="topic-day">Day 11</div>
+        </div>
+        <div class="topic-card">
+          <div class="topic-status soon">○ Coming</div>
+          <div class="topic-name">Text-to-SQL Agents</div>
+          <div class="topic-day">Day 12</div>
+        </div>
+        <div class="topic-card" style="border-style:dashed;opacity:0.5">
+          <div class="topic-status soon">○ + many more</div>
+          <div class="topic-name">MLOps, Guardrails, Multimodal AI...</div>
+          <div class="topic-day">Ongoing</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════ ABOUT ══════════ -->
+<section id="about">
+  <div class="about-strip">
+    <div>
+      <span class="about-tag">The person behind WiseLabs</span>
+      <h2>Hi, I'm Akanksha — and I'm doing this live</h2>
+      <p>I'm a senior engineer with 10 years in enterprise systems, actively interviewing for AI engineering roles at top-tier companies. WiseLabs is where I learn in public — every topic I prep, I teach.</p>
+      <p>The best way to deeply understand something is to explain it clearly to someone else. That's the whole idea here. You get a structured, honest breakdown of AI engineering. I get to actually learn it.</p>
+    </div>
+    <div class="about-facts">
+      <div class="fact">
+        <span class="fact-icon">🏗️</span>
+        <div class="fact-text">
+          <strong>Built real AI systems</strong>
+          DocuMind (RAG + multi-agent) and QueryMind (text-to-SQL agent) — portfolio projects built to production standards.
+        </div>
+      </div>
+      <div class="fact">
+        <span class="fact-icon">🎯</span>
+        <div class="fact-text">
+          <strong>Targeting IC4-level AI roles</strong>
+          Google, Salesforce, Deloitte — the interview prep here reflects real rounds at real companies.
+        </div>
+      </div>
+      <div class="fact">
+        <span class="fact-icon">📡</span>
+        <div class="fact-text">
+          <strong>No gatekeeping, ever</strong>
+          Everything I learn is shared openly — mistakes, gaps, breakthroughs, all of it.
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════ CTA ══════════ -->
+<div class="cta-section">
+  <div class="cta-glow">
+    <h2>Start learning <em>today</em>.<br>It's all free.</h2>
+    <p>Subscribe on YouTube and never miss a new topic — posted as I learn it.</p>
+    <div class="cta-buttons">
+      <a href="https://youtube.com/@wiselabs" target="_blank" class="btn-primary" style="font-size:16px;padding:16px 32px">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M21.8 8S21.6 6.4 20.9 5.7c-.8-.8-1.7-.8-2.1-.9C15.6 4.7 12 4.7 12 4.7s-3.6 0-6.8.1c-.4.1-1.3.1-2.1.9C2.4 6.4 2.2 8 2.2 8S2 9.8 2 11.7v1.7c0 1.9.2 3.7.2 3.7s.2 1.6.9 2.3c.8.8 1.9.8 2.4.9C7.2 20.3 12 20.3 12 20.3s3.6 0 6.8-.2c.4-.1 1.3-.1 2.1-.9.7-.7.9-2.3.9-2.3s.2-1.8.2-3.7v-1.7C22 9.8 21.8 8 21.8 8zM9.7 15.5V8.9l5.8 3.3-5.8 3.3z"/></svg>
+        Subscribe on YouTube
+      </a>
+      <a href="https://instagram.com/wiselabs.in" target="_blank" class="btn-secondary" style="font-size:16px">
+        Follow on Instagram
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+      </a>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════ FOOTER ══════════ -->
+<footer>
+  <a href="#" class="footer-logo">Wise<span>Labs</span></a>
+  <span class="footer-note">Learning AI engineering in public · wiselabs.in</span>
+  <div class="footer-links">
+    <a href="https://youtube.com/@wiselabs" target="_blank">YouTube</a>
+    <a href="https://instagram.com/wiselabs.in" target="_blank">Instagram</a>
+    <a href="#topics">Topics</a>
+  </div>
+</footer>
+
+<script>
+// Terminal typewriter
+const topics = [
+  "Embeddings & Semantic Search",
+  "Vector Databases",
+  "RAG Architecture",
+  "LLM Fundamentals",
+  "Agentic AI Systems",
+  "Evaluation & RAGAS",
+  "System Design for AI",
+  "Text-to-SQL Agents",
+];
+
+const outputEl = document.getElementById('terminal-output');
+let topicIndex = 0;
+
+function typeTopic() {
+  const topic = topics[topicIndex % topics.length];
+  topicIndex++;
+
+  // Clear and type
+  outputEl.innerHTML = '';
+
+  const line1 = document.createElement('div');
+  line1.innerHTML = `<span class="terminal-output">→ Loading topic: </span><span class="terminal-topic" id="typing-text"></span><span class="cursor"></span>`;
+  outputEl.appendChild(line1);
+
+  const typingEl = document.getElementById('typing-text');
+  let charIndex = 0;
+
+  const typeInterval = setInterval(() => {
+    if (charIndex < topic.length) {
+      typingEl.textContent += topic[charIndex];
+      charIndex++;
+    } else {
+      clearInterval(typeInterval);
+      // Remove cursor after typing, pause, then next topic
+      setTimeout(() => {
+        const cursor = line1.querySelector('.cursor');
+        if (cursor) cursor.style.display = 'none';
+
+        // Add "ready" line
+        const line2 = document.createElement('div');
+        line2.innerHTML = `<span class="terminal-output">✓ Ready — watch on YouTube ↗</span>`;
+        outputEl.appendChild(line2);
+
+        setTimeout(typeTopic, 2200);
+      }, 900);
+    }
+  }, 55);
+}
+
+typeTopic();
+
+// Scroll reveal
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      e.target.style.opacity = '1';
+      e.target.style.transform = 'translateY(0)';
+    }
+  });
+}, { threshold: 0.1 });
+
+document.querySelectorAll('.pillar-card, .topic-card, .fact').forEach(el => {
+  el.style.opacity = '0';
+  el.style.transform = 'translateY(20px)';
+  el.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
+  observer.observe(el);
+});
+</script>
+</body>
+</html>

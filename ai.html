@@ -1,0 +1,628 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI Engineering — WiseLabs</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg: #0D1B2A;
+  --surface: #111827;
+  --surface2: #1a2744;
+  --violet: #7C3AED;
+  --violet-light: #a78bfa;
+  --gold: #F59E0B;
+  --gold-light: #fcd34d;
+  --white: #F9FAFB;
+  --muted: #6B7280;
+  --border: rgba(124,58,237,0.18);
+  --green: #10B981;
+}
+
+html { scroll-behavior: smooth; }
+body {
+  background: var(--bg);
+  color: var(--white);
+  font-family: 'Inter', sans-serif;
+  line-height: 1.6;
+  overflow-x: hidden;
+}
+
+/* ── NAV ── */
+nav {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 18px 48px;
+  background: rgba(13,27,42,0.92);
+  backdrop-filter: blur(14px);
+  border-bottom: 1px solid rgba(124,58,237,0.12);
+}
+.nav-logo { font-family: 'Space Grotesk', sans-serif; font-size: 20px; font-weight: 700; color: var(--white); text-decoration: none; letter-spacing: -0.5px; }
+.nav-logo span { color: var(--violet-light); }
+.nav-links { display: flex; gap: 6px; list-style: none; }
+.nav-links a { color: var(--muted); text-decoration: none; font-size: 14px; font-weight: 500; padding: 6px 14px; border-radius: 6px; transition: color 0.2s, background 0.2s; }
+.nav-links a:hover { color: var(--white); background: rgba(255,255,255,0.06); }
+.nav-links a.active { color: var(--violet-light); background: rgba(124,58,237,0.12); }
+.nav-cta { background: var(--violet); color: white; font-family: 'Space Grotesk', sans-serif; font-size: 14px; font-weight: 600; padding: 9px 20px; border-radius: 8px; text-decoration: none; transition: background 0.2s; }
+.nav-cta:hover { background: #6d28d9; }
+
+/* ── PAGE HEADER ── */
+.page-header {
+  max-width: 1100px; margin: 0 auto;
+  padding: 110px 48px 56px;
+  display: grid; grid-template-columns: 1fr auto; gap: 40px; align-items: end;
+}
+.header-left .eyebrow {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 12px; font-weight: 700;
+  letter-spacing: 3px; text-transform: uppercase;
+  color: var(--violet-light); margin-bottom: 14px;
+  display: flex; align-items: center; gap: 10px;
+}
+.header-left .eyebrow::before { content: ''; display: inline-block; width: 20px; height: 2px; background: var(--violet-light); }
+.page-header h1 { font-family: 'Space Grotesk', sans-serif; font-size: clamp(32px, 4.5vw, 56px); font-weight: 700; letter-spacing: -1.5px; line-height: 1.08; margin-bottom: 16px; }
+.page-header h1 em { font-style: normal; color: var(--violet-light); }
+.page-header p { font-size: 17px; color: rgba(249,250,251,0.58); max-width: 540px; line-height: 1.75; }
+.header-stats { display: flex; flex-direction: column; gap: 12px; text-align: right; flex-shrink: 0; }
+.hstat-num { font-family: 'Space Grotesk', sans-serif; font-size: 36px; font-weight: 700; color: var(--violet-light); letter-spacing: -1px; }
+.hstat-label { font-size: 12px; color: var(--muted); margin-top: -4px; }
+
+/* ── PROGRESS BAR ── */
+.progress-section {
+  max-width: 1100px; margin: 0 auto;
+  padding: 0 48px 48px;
+}
+.progress-bar-wrap {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px; padding: 20px 24px;
+  display: flex; align-items: center; gap: 20px;
+}
+.progress-label { font-family: 'Space Grotesk', sans-serif; font-size: 13px; font-weight: 600; color: var(--muted); white-space: nowrap; }
+.progress-track { flex: 1; height: 6px; background: rgba(255,255,255,0.08); border-radius: 99px; overflow: hidden; }
+.progress-fill { height: 100%; border-radius: 99px; background: linear-gradient(90deg, var(--violet), var(--violet-light)); width: 8%; transition: width 1s ease; }
+.progress-pct { font-family: 'Space Grotesk', sans-serif; font-size: 13px; font-weight: 700; color: var(--violet-light); white-space: nowrap; }
+
+/* ── FILTER BAR ── */
+.filter-bar {
+  max-width: 1100px; margin: 0 auto;
+  padding: 0 48px 32px;
+  display: flex; gap: 8px; flex-wrap: wrap; align-items: center;
+}
+.filter-btn {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 13px; font-weight: 600;
+  padding: 7px 18px; border-radius: 8px;
+  border: 1px solid rgba(255,255,255,0.1);
+  background: transparent; color: var(--muted);
+  cursor: pointer; transition: all 0.2s;
+}
+.filter-btn:hover { color: var(--white); border-color: rgba(255,255,255,0.25); }
+.filter-btn.active { background: rgba(124,58,237,0.15); border-color: rgba(124,58,237,0.4); color: var(--violet-light); }
+.filter-divider { width: 1px; height: 24px; background: rgba(255,255,255,0.1); margin: 0 4px; }
+
+/* ── TOPIC GRID ── */
+.topics-section { max-width: 1100px; margin: 0 auto; padding: 0 48px 100px; }
+
+.day-group { margin-bottom: 52px; }
+.day-label {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 12px; font-weight: 700;
+  letter-spacing: 3px; text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 16px;
+  display: flex; align-items: center; gap: 12px;
+}
+.day-label::after { content: ''; flex: 1; height: 1px; background: rgba(255,255,255,0.07); }
+
+.topic-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+
+.topic-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 14px; padding: 24px;
+  text-decoration: none; color: inherit;
+  display: flex; flex-direction: column; gap: 10px;
+  transition: border-color 0.2s, transform 0.2s, background 0.2s;
+  position: relative; overflow: hidden;
+}
+.topic-card::before {
+  content: ''; position: absolute; top: 0; left: 0; right: 0;
+  height: 2px; background: linear-gradient(90deg, var(--violet), var(--violet-light));
+  opacity: 0; transition: opacity 0.2s;
+}
+.topic-card:hover { border-color: rgba(124,58,237,0.45); transform: translateY(-3px); background: #141f32; }
+.topic-card:hover::before { opacity: 1; }
+.topic-card.coming { cursor: default; }
+.topic-card.coming:hover { transform: none; border-color: var(--border); background: var(--surface); }
+.topic-card.coming:hover::before { opacity: 0; }
+
+.card-top { display: flex; justify-content: space-between; align-items: flex-start; gap: 8px; }
+.status-badge {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 10px; font-weight: 700;
+  letter-spacing: 1.5px; text-transform: uppercase;
+  padding: 3px 9px; border-radius: 20px; flex-shrink: 0;
+}
+.status-live { background: rgba(16,185,129,0.12); border: 1px solid rgba(16,185,129,0.3); color: var(--green); }
+.status-soon { background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.1); color: var(--muted); }
+.status-next { background: rgba(245,158,11,0.1); border: 1px solid rgba(245,158,11,0.3); color: var(--gold-light); }
+
+.content-icons { display: flex; gap: 4px; }
+.content-icon {
+  font-size: 12px; padding: 2px 7px; border-radius: 4px;
+  background: rgba(255,255,255,0.05);
+  color: var(--muted);
+  font-family: 'Space Grotesk', sans-serif;
+  font-weight: 600; font-size: 10px;
+}
+.content-icon.has-video { background: rgba(255,0,0,0.1); color: #f87171; }
+.content-icon.has-post { background: rgba(124,58,237,0.1); color: var(--violet-light); }
+
+.topic-name {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 15px; font-weight: 700;
+  color: var(--white); line-height: 1.35;
+}
+.topic-desc { font-size: 13px; color: rgba(249,250,251,0.5); line-height: 1.55; }
+.topic-arrow {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 12px; font-weight: 600;
+  color: var(--violet-light);
+  margin-top: 4px; opacity: 0; transition: opacity 0.2s;
+}
+.topic-card:not(.coming):hover .topic-arrow { opacity: 1; }
+
+/* ── FEATURED — first live card is larger ── */
+.topic-card.featured {
+  grid-column: span 2;
+  flex-direction: row; gap: 24px; align-items: flex-start;
+  padding: 28px 32px;
+}
+.topic-card.featured .card-body { flex: 1; display: flex; flex-direction: column; gap: 10px; }
+.topic-card.featured .topic-name { font-size: 18px; }
+.topic-card.featured .topic-desc { font-size: 14px; }
+.topic-card.featured .featured-thumb {
+  width: 140px; flex-shrink: 0;
+  background: rgba(124,58,237,0.1);
+  border: 1px solid rgba(124,58,237,0.2);
+  border-radius: 10px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 40px; aspect-ratio: 16/9;
+}
+
+/* ── CTA STRIP ── */
+.cta-strip {
+  background: var(--surface);
+  border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+  padding: 40px 48px;
+  margin-bottom: 0;
+}
+.cta-strip-inner {
+  max-width: 1100px; margin: 0 auto;
+  display: flex; justify-content: space-between; align-items: center; gap: 32px; flex-wrap: wrap;
+}
+.cta-strip h3 { font-family: 'Space Grotesk', sans-serif; font-size: 20px; font-weight: 700; margin-bottom: 6px; }
+.cta-strip p { font-size: 15px; color: rgba(249,250,251,0.55); }
+.cta-strip-btns { display: flex; gap: 12px; flex-shrink: 0; }
+.btn-primary {
+  background: var(--violet); color: white;
+  font-family: 'Space Grotesk', sans-serif; font-size: 14px; font-weight: 600;
+  padding: 12px 24px; border-radius: 9px; text-decoration: none;
+  display: flex; align-items: center; gap: 8px;
+  transition: background 0.2s, transform 0.15s;
+}
+.btn-primary:hover { background: #6d28d9; transform: translateY(-1px); }
+.btn-ghost {
+  color: var(--violet-light); font-family: 'Space Grotesk', sans-serif;
+  font-size: 14px; font-weight: 600;
+  padding: 12px 20px; border-radius: 9px;
+  border: 1px solid rgba(124,58,237,0.35);
+  text-decoration: none; transition: background 0.2s;
+}
+.btn-ghost:hover { background: rgba(124,58,237,0.1); }
+
+/* ── FOOTER ── */
+.footer-wrap {
+  border-top: 1px solid var(--border);
+  padding: 32px 48px; max-width: 1100px; margin: 0 auto;
+  display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px;
+}
+.footer-logo { font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: 17px; color: var(--white); text-decoration: none; }
+.footer-logo span { color: var(--violet-light); }
+.footer-links { display: flex; gap: 20px; }
+.footer-links a { font-size: 13px; color: var(--muted); text-decoration: none; transition: color 0.2s; }
+.footer-links a:hover { color: var(--white); }
+
+/* ── HIDDEN for filter ── */
+.topic-card.hidden { display: none; }
+
+/* ── RESPONSIVE ── */
+@media (max-width: 900px) {
+  nav { padding: 16px 24px; }
+  .nav-links { display: none; }
+  .page-header { grid-template-columns: 1fr; padding: 100px 24px 40px; }
+  .header-stats { text-align: left; flex-direction: row; gap: 32px; }
+  .progress-section, .filter-bar, .topics-section { padding-left: 24px; padding-right: 24px; }
+  .topic-grid { grid-template-columns: 1fr 1fr; }
+  .topic-card.featured { grid-column: span 2; }
+  .cta-strip { padding: 32px 24px; }
+  .footer-wrap { padding: 28px 24px; flex-direction: column; align-items: flex-start; }
+}
+@media (max-width: 600px) {
+  .topic-grid { grid-template-columns: 1fr; }
+  .topic-card.featured { grid-column: span 1; flex-direction: column; }
+  .topic-card.featured .featured-thumb { width: 100%; aspect-ratio: 16/5; }
+}
+</style>
+</head>
+<body>
+
+<!-- ══════════ NAV ══════════ -->
+<nav>
+  <a href="index.html" class="nav-logo">Wise<span>Labs</span></a>
+  <ul class="nav-links">
+    <li><a href="ai.html" class="active">AI Engineering</a></li>
+    <li><a href="system-design.html">System Design</a></li>
+    <li><a href="blog.html">Blog</a></li>
+    <li><a href="index.html#about">About</a></li>
+  </ul>
+  <a href="https://youtube.com/@wiselabs" target="_blank" class="nav-cta">Subscribe →</a>
+</nav>
+
+<!-- ══════════ PAGE HEADER ══════════ -->
+<div class="page-header">
+  <div class="header-left">
+    <div class="eyebrow">AI Engineering Roadmap</div>
+    <h1>Everything you need to crack an <em>AI engineering interview</em></h1>
+    <p>Every topic Akanksha preps — documented as videos, notes, and code. Built around real IC4-level interview rounds at Google, Salesforce, and Deloitte.</p>
+  </div>
+  <div class="header-stats">
+    <div>
+      <div class="hstat-num">4</div>
+      <div class="hstat-label">topics live</div>
+    </div>
+    <div>
+      <div class="hstat-num">50+</div>
+      <div class="hstat-label">on the roadmap</div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════ PROGRESS ══════════ -->
+<div class="progress-section">
+  <div class="progress-bar-wrap">
+    <span class="progress-label">Roadmap progress</span>
+    <div class="progress-track"><div class="progress-fill" id="progress-fill"></div></div>
+    <span class="progress-pct">4 / 50 topics complete</span>
+  </div>
+</div>
+
+<!-- ══════════ FILTER BAR ══════════ -->
+<div class="filter-bar">
+  <button class="filter-btn active" onclick="filterTopics('all', this)">All topics</button>
+  <button class="filter-btn" onclick="filterTopics('live', this)">● Live</button>
+  <div class="filter-divider"></div>
+  <button class="filter-btn" onclick="filterTopics('foundations', this)">Foundations</button>
+  <button class="filter-btn" onclick="filterTopics('retrieval', this)">Retrieval & RAG</button>
+  <button class="filter-btn" onclick="filterTopics('llm', this)">LLMs</button>
+  <button class="filter-btn" onclick="filterTopics('agents', this)">Agents</button>
+  <button class="filter-btn" onclick="filterTopics('evaluation', this)">Evaluation</button>
+  <button class="filter-btn" onclick="filterTopics('system', this)">System Design</button>
+</div>
+
+<!-- ══════════ TOPICS ══════════ -->
+<div class="topics-section">
+
+  <!-- DAY 1 -->
+  <div class="day-group">
+    <div class="day-label">Day 1 — Embeddings & Semantic Search</div>
+    <div class="topic-grid">
+
+      <a href="ai/embeddings.html" class="topic-card featured" data-tags="foundations retrieval">
+        <div class="featured-thumb">🧠</div>
+        <div class="card-body">
+          <div class="card-top">
+            <span class="status-badge status-live">● Live</span>
+            <div class="content-icons">
+              <span class="content-icon has-video">▶ Video</span>
+              <span class="content-icon has-post">📝 Post</span>
+            </div>
+          </div>
+          <div class="topic-name">Embeddings & Vector Representations</div>
+          <div class="topic-desc">How neural networks convert language into numbers that carry meaning. The absolute foundation of every modern AI system.</div>
+          <div class="topic-arrow">Read notes & watch video →</div>
+        </div>
+      </a>
+
+      <a href="ai/semantic-search.html" class="topic-card" data-tags="foundations retrieval">
+        <div class="card-top">
+          <span class="status-badge status-live">● Live</span>
+          <div class="content-icons">
+            <span class="content-icon has-video">▶ Video</span>
+            <span class="content-icon has-post">📝 Post</span>
+          </div>
+        </div>
+        <div class="topic-name">Semantic Search</div>
+        <div class="topic-desc">Search by meaning, not keywords. Why cosine similarity changes everything about how retrieval works.</div>
+        <div class="topic-arrow">Explore →</div>
+      </a>
+
+      <a href="ai/embedding-models.html" class="topic-card" data-tags="foundations">
+        <div class="card-top">
+          <span class="status-badge status-live">● Live</span>
+          <div class="content-icons">
+            <span class="content-icon has-video">▶ Video</span>
+            <span class="content-icon has-post">📝 Post</span>
+          </div>
+        </div>
+        <div class="topic-name">Embedding Model Families</div>
+        <div class="topic-desc">OpenAI, Sentence Transformers, Cohere, BGE — which model to use and when, with real tradeoffs.</div>
+        <div class="topic-arrow">Explore →</div>
+      </a>
+
+      <a href="ai/similarity-search.html" class="topic-card" data-tags="foundations retrieval">
+        <div class="card-top">
+          <span class="status-badge status-live">● Live</span>
+          <div class="content-icons">
+            <span class="content-icon has-video">▶ Video</span>
+            <span class="content-icon has-post">📝 Post</span>
+          </div>
+        </div>
+        <div class="topic-name">Similarity Search & Distance Metrics</div>
+        <div class="topic-desc">Cosine similarity, dot product, Euclidean distance — how they differ and which to choose.</div>
+        <div class="topic-arrow">Explore →</div>
+      </a>
+
+    </div>
+  </div>
+
+  <!-- DAY 2 -->
+  <div class="day-group">
+    <div class="day-label">Day 2 — Vector Databases</div>
+    <div class="topic-grid">
+      <a href="ai/vector-databases.html" class="topic-card coming" data-tags="retrieval system">
+        <div class="card-top"><span class="status-badge status-next">⚡ Up next</span></div>
+        <div class="topic-name">Vector Databases — Chroma, Pinecone, pgvector, FAISS</div>
+        <div class="topic-desc">How to store and query millions of vectors efficiently. Deep dive into the most common vector stores and when to use each.</div>
+      </a>
+      <div class="topic-card coming" data-tags="retrieval system">
+        <div class="card-top"><span class="status-badge status-soon">○ Coming</span></div>
+        <div class="topic-name">Indexing Strategies — HNSW, IVF, PQ</div>
+        <div class="topic-desc">How vector databases index millions of embeddings for sub-millisecond retrieval. The algorithms behind the speed.</div>
+      </div>
+      <div class="topic-card coming" data-tags="retrieval">
+        <div class="card-top"><span class="status-badge status-soon">○ Coming</span></div>
+        <div class="topic-name">Metadata Filtering in Vector Search</div>
+        <div class="topic-desc">Combining semantic search with structured filters — pre-filtering vs post-filtering and their performance tradeoffs.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- DAY 3 -->
+  <div class="day-group">
+    <div class="day-label">Day 3 — RAG Architecture</div>
+    <div class="topic-grid">
+      <div class="topic-card coming" data-tags="retrieval">
+        <div class="card-top"><span class="status-badge status-soon">○ Coming</span></div>
+        <div class="topic-name">RAG — Retrieval Augmented Generation</div>
+        <div class="topic-desc">The full RAG pipeline from ingestion to answer. Why RAG exists, where it beats fine-tuning, and its core failure modes.</div>
+      </div>
+      <div class="topic-card coming" data-tags="retrieval">
+        <div class="card-top"><span class="status-badge status-soon">○ Coming</span></div>
+        <div class="topic-name">Chunking Strategies for RAG</div>
+        <div class="topic-desc">Fixed-size, recursive, semantic, and sentence chunking — how chunk strategy affects retrieval quality more than almost anything else.</div>
+      </div>
+      <div class="topic-card coming" data-tags="retrieval">
+        <div class="card-top"><span class="status-badge status-soon">○ Coming</span></div>
+        <div class="topic-name">Advanced RAG — Re-ranking, HyDE, Query Expansion</div>
+        <div class="topic-desc">Techniques that move beyond naive top-K retrieval. What to reach for when basic RAG isn't good enough.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- DAY 4-5 -->
+  <div class="day-group">
+    <div class="day-label">Day 4–5 — LLM Fundamentals</div>
+    <div class="topic-grid">
+      <div class="topic-card coming" data-tags="llm foundations">
+        <div class="card-top"><span class="status-badge status-soon">○ Coming</span></div>
+        <div class="topic-name">Transformers & Self-Attention</div>
+        <div class="topic-desc">How the transformer architecture works. Attention mechanisms, encoder vs decoder, and why this architecture dominates.</div>
+      </div>
+      <div class="topic-card coming" data-tags="llm">
+        <div class="card-top"><span class="status-badge status-soon">○ Coming</span></div>
+        <div class="topic-name">Prompt Engineering & Chain of Thought</div>
+        <div class="topic-desc">System prompts, few-shot examples, chain-of-thought, structured output — practical techniques that actually move the needle.</div>
+      </div>
+      <div class="topic-card coming" data-tags="llm">
+        <div class="card-top"><span class="status-badge status-soon">○ Coming</span></div>
+        <div class="topic-name">Fine-tuning vs RAG — When to Use Which</div>
+        <div class="topic-desc">The most common interview question in AI engineering. A framework for choosing the right approach for a given use case.</div>
+      </div>
+      <div class="topic-card coming" data-tags="llm">
+        <div class="card-top"><span class="status-badge status-soon">○ Coming</span></div>
+        <div class="topic-name">Tokenisation & Context Windows</div>
+        <div class="topic-desc">How LLMs process text as tokens. Context window limits, long-context strategies, and cost implications.</div>
+      </div>
+      <div class="topic-card coming" data-tags="llm">
+        <div class="card-top"><span class="status-badge status-soon">○ Coming</span></div>
+        <div class="topic-name">LLM Output — Temperature, Top-P, Sampling</div>
+        <div class="topic-desc">How LLMs generate text token by token. Controlling randomness vs determinism in production systems.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- DAY 6-7 -->
+  <div class="day-group">
+    <div class="day-label">Day 6–7 — LangChain & LangGraph</div>
+    <div class="topic-grid">
+      <div class="topic-card coming" data-tags="agents">
+        <div class="card-top"><span class="status-badge status-soon">○ Coming</span></div>
+        <div class="topic-name">LangChain Core Concepts</div>
+        <div class="topic-desc">Chains, prompts, memory, document loaders — the building blocks of LangChain and when to use the framework vs raw API calls.</div>
+      </div>
+      <div class="topic-card coming" data-tags="agents">
+        <div class="card-top"><span class="status-badge status-soon">○ Coming</span></div>
+        <div class="topic-name">LangGraph — Stateful Multi-Agent Workflows</div>
+        <div class="topic-desc">Graph-based agent orchestration. How to build multi-step, conditional, and looping agent pipelines with persistent state.</div>
+      </div>
+      <div class="topic-card coming" data-tags="agents">
+        <div class="card-top"><span class="status-badge status-soon">○ Coming</span></div>
+        <div class="topic-name">LangSmith — Tracing & Observability</div>
+        <div class="topic-desc">Debugging LLM applications in production. Tracing chains, evaluating outputs, and catching regressions before they reach users.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- DAY 8-9 -->
+  <div class="day-group">
+    <div class="day-label">Day 8–9 — Agentic AI</div>
+    <div class="topic-grid">
+      <div class="topic-card coming" data-tags="agents">
+        <div class="card-top"><span class="status-badge status-soon">○ Coming</span></div>
+        <div class="topic-name">Agentic AI — Tools, Planning & Memory</div>
+        <div class="topic-desc">What makes a system "agentic". Tool calling, planning loops, short-term vs long-term memory, and agent failure modes.</div>
+      </div>
+      <div class="topic-card coming" data-tags="agents">
+        <div class="card-top"><span class="status-badge status-soon">○ Coming</span></div>
+        <div class="topic-name">Text-to-SQL Agents</div>
+        <div class="topic-desc">Building agents that translate natural language to SQL. Schema injection, dual-path fallback, and handling ambiguous queries.</div>
+      </div>
+      <div class="topic-card coming" data-tags="agents">
+        <div class="card-top"><span class="status-badge status-soon">○ Coming</span></div>
+        <div class="topic-name">Multi-Agent Systems & Orchestration</div>
+        <div class="topic-desc">Supervisor-worker patterns, agent communication, and how to design systems where multiple agents collaborate without chaos.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- DAY 10 -->
+  <div class="day-group">
+    <div class="day-label">Day 10 — Evaluation</div>
+    <div class="topic-grid">
+      <div class="topic-card coming" data-tags="evaluation">
+        <div class="card-top"><span class="status-badge status-soon">○ Coming</span></div>
+        <div class="topic-name">RAGAS — Evaluating RAG Systems</div>
+        <div class="topic-desc">Faithfulness, answer relevancy, context precision and recall. How to measure whether your RAG system is actually working.</div>
+      </div>
+      <div class="topic-card coming" data-tags="evaluation">
+        <div class="card-top"><span class="status-badge status-soon">○ Coming</span></div>
+        <div class="topic-name">LLM-as-Judge Evaluation</div>
+        <div class="topic-desc">Using LLMs to evaluate LLM outputs. When this works, when it fails, and how to calibrate evaluators against human judgement.</div>
+      </div>
+      <div class="topic-card coming" data-tags="evaluation">
+        <div class="card-top"><span class="status-badge status-soon">○ Coming</span></div>
+        <div class="topic-name">Guardrails & Safety Evaluation</div>
+        <div class="topic-desc">Detecting hallucinations, blocking harmful outputs, and building AI systems that fail safely in production.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- DAY 11-12 -->
+  <div class="day-group">
+    <div class="day-label">Day 11–12 — Production & System Design</div>
+    <div class="topic-grid">
+      <div class="topic-card coming" data-tags="system">
+        <div class="card-top"><span class="status-badge status-soon">○ Coming</span></div>
+        <div class="topic-name">System Design for AI — Production RAG at Scale</div>
+        <div class="topic-desc">Designing a RAG system for millions of documents and thousands of concurrent users. Caching, batching, latency budgets.</div>
+      </div>
+      <div class="topic-card coming" data-tags="system">
+        <div class="card-top"><span class="status-badge status-soon">○ Coming</span></div>
+        <div class="topic-name">MLOps for AI Applications</div>
+        <div class="topic-desc">CI/CD for LLM apps, prompt versioning, embedding pipeline monitoring, and deployment strategies for AI systems.</div>
+      </div>
+      <div class="topic-card coming" data-tags="system llm">
+        <div class="card-top"><span class="status-badge status-soon">○ Coming</span></div>
+        <div class="topic-name">Cost Optimisation for LLM Systems</div>
+        <div class="topic-desc">Caching, prompt compression, model routing, and batching strategies to reduce LLM API costs without sacrificing quality.</div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- ══════════ CTA STRIP ══════════ -->
+<div class="cta-strip">
+  <div class="cta-strip-inner">
+    <div>
+      <h3>New topics posted every few days</h3>
+      <p>Subscribe on YouTube to get notified when each new topic goes live.</p>
+    </div>
+    <div class="cta-strip-btns">
+      <a href="https://youtube.com/@wiselabs" target="_blank" class="btn-primary">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M21.8 8S21.6 6.4 20.9 5.7c-.8-.8-1.7-.8-2.1-.9C15.6 4.7 12 4.7 12 4.7s-3.6 0-6.8.1c-.4.1-1.3.1-2.1.9C2.4 6.4 2.2 8 2.2 8S2 9.8 2 11.7v1.7c0 1.9.2 3.7.2 3.7s.2 1.6.9 2.3c.8.8 1.9.8 2.4.9C7.2 20.3 12 20.3 12 20.3s3.6 0 6.8-.2c.4-.1 1.3-.1 2.1-.9.7-.7.9-2.3.9-2.3s.2-1.8.2-3.7v-1.7C22 9.8 21.8 8 21.8 8zM9.7 15.5V8.9l5.8 3.3-5.8 3.3z"/></svg>
+        Subscribe on YouTube
+      </a>
+      <a href="index.html" class="btn-ghost">← Back to home</a>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════ FOOTER ══════════ -->
+<div class="footer-wrap">
+  <a href="index.html" class="footer-logo">Wise<span>Labs</span></a>
+  <div class="footer-links">
+    <a href="https://youtube.com/@wiselabs" target="_blank">YouTube</a>
+    <a href="system-design.html">System Design</a>
+    <a href="blog.html">Blog</a>
+    <a href="index.html#about">About</a>
+  </div>
+</div>
+
+<script>
+// Progress bar animate on load
+window.addEventListener('load', () => {
+  setTimeout(() => {
+    document.getElementById('progress-fill').style.width = '8%';
+  }, 300);
+});
+
+// Filter
+function filterTopics(tag, btn) {
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+
+  document.querySelectorAll('.topic-card').forEach(card => {
+    if (tag === 'all') {
+      card.classList.remove('hidden');
+    } else if (tag === 'live') {
+      const isLive = card.querySelector('.status-live');
+      card.classList.toggle('hidden', !isLive);
+    } else {
+      const tags = card.dataset.tags || '';
+      card.classList.toggle('hidden', !tags.includes(tag));
+    }
+  });
+
+  // Hide empty day groups
+  document.querySelectorAll('.day-group').forEach(group => {
+    const visible = [...group.querySelectorAll('.topic-card')].some(c => !c.classList.contains('hidden'));
+    group.style.display = visible ? '' : 'none';
+  });
+}
+
+// Scroll reveal
+const observer = new IntersectionObserver(entries => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      e.target.style.opacity = '1';
+      e.target.style.transform = 'translateY(0)';
+    }
+  });
+}, { threshold: 0.06 });
+
+document.querySelectorAll('.topic-card').forEach((el, i) => {
+  el.style.opacity = '0';
+  el.style.transform = 'translateY(16px)';
+  el.style.transition = `opacity 0.4s ease ${(i % 3) * 0.08}s, transform 0.4s ease ${(i % 3) * 0.08}s`;
+  observer.observe(el);
+});
+</script>
+</body>
+</html>

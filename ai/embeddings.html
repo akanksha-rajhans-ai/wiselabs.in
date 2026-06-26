@@ -127,7 +127,7 @@ p.body em { color:var(--gl); font-style:normal; }
   <div class="center-col">
     <div class="eyebrow">WiseLabs · AI Engineering</div>
     <h1>Embeddings &amp;<br><em>Semantic Search</em></h1>
-    <p class="body" style="margin-top:8px;font-size:19px;color:rgba(249,250,251,0.6)">How machines convert language into math — and why that changes everything about how AI systems understand the world.</p>
+    <p class="body" style="margin-top:8px;font-size:19px;color:rgba(249,250,251,0.6)">How machines convert language into math and why that changes everything about how AI systems understand the world.</p>
     <div style="display:flex;gap:10px;flex-wrap:wrap;justify-content:center;margin-top:12px">
       <span class="tag v">What are embeddings</span>
       <span class="tag v">Vectors & dimensions</span>
@@ -153,7 +153,7 @@ p.body em { color:var(--gl); font-style:normal; }
       <div class="eyebrow">The Problem</div>
       <h2>Machines see <em>characters</em>, not meaning</h2>
       <p class="body">Humans instantly understand that <strong>Car</strong> and <strong>Automobile</strong> mean the same thing. That <strong>King</strong> and <strong>Queen</strong> are related. That <strong>Doctor</strong> and <strong>Hospital</strong> connect.</p>
-      <p class="body">A computer sees the word <strong>"king"</strong> as just four characters — K, I, N, G — or even more fundamentally, as binary numbers in memory. No royalty. No relationship to queen. No meaning whatsoever.</p>
+      <p class="body">A computer sees the word <strong>"king"</strong> as just four characters : K, I, N, G, or even more fundamentally, as binary numbers in memory. No royalty. No relationship to queen. No meaning whatsoever.</p>
       <div class="insight"><p>Machines are incredible at math. They're terrible at understanding language directly. The solution: <strong>convert language into numbers that preserve meaning.</strong></p></div>
     </div>
     <div>
@@ -207,7 +207,7 @@ p.body em { color:var(--gl); font-style:normal; }
       <h2>Distance = <em>similarity</em></h2>
       <p class="body">On a real map, Mumbai is close to Pune. Distance is meaningful. Now imagine a map of <strong>ideas</strong>.</p>
       <p class="body">On this map, Dog is close to Cat. King is close to Queen. Programming is close to Software Engineering. The closer two concepts, the more related they are.</p>
-      <p class="body">Every word gets <strong>coordinates</strong> — just like GPS. Those coordinates are its embedding.</p>
+      <p class="body">Every word gets <strong>coordinates</strong> : just like GPS. Those coordinates are its embedding.</p>
       <div class="insight"><p><strong>Meaning becomes geometry.</strong> The actual numbers don't matter — the relationships between them do.</p></div>
     </div>
     <div>
@@ -260,7 +260,7 @@ p.body em { color:var(--gl); font-style:normal; }
       <div class="eyebrow">Vectors</div>
       <h2>A vector is just a <em>list of numbers</em></h2>
       <p class="body">That's it. Nothing scary. <code style="background:rgba(167,139,250,0.1);padding:2px 7px;border-radius:4px;font-family:'JetBrains Mono',monospace;font-size:14px;color:var(--vl)">[2, 5, 7]</code> is a vector. So is <code style="background:rgba(167,139,250,0.1);padding:2px 7px;border-radius:4px;font-family:'JetBrains Mono',monospace;font-size:14px;color:var(--vl)">[-1.2, 3.8, 9.4]</code>.</p>
-      <p class="body">Modern AI models use vectors with hundreds or thousands of numbers. Think of them as <strong>coordinates</strong> in a giant mathematical space — coordinates that tell us where a word lives relative to all other words.</p>
+      <p class="body">Modern AI models use vectors with hundreds or thousands of numbers. Think of them as <strong>coordinates</strong> in a giant mathematical space coordinates that tell us where a word lives relative to all other words.</p>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:4px">
         <div class="card" style="text-align:center;padding:16px"><div class="num" style="font-family:'Space Grotesk',sans-serif;font-size:26px;font-weight:800;color:var(--vl)">384</div><div style="font-size:12px;color:var(--muted);margin-top:4px">all-MiniLM-L6-v2</div></div>
         <div class="card" style="text-align:center;padding:16px"><div class="num" style="font-family:'Space Grotesk',sans-serif;font-size:26px;font-weight:800;color:var(--vl)">768</div><div style="font-size:12px;color:var(--muted);margin-top:4px">bge-base / text-004</div></div>
@@ -327,8 +327,8 @@ p.body em { color:var(--gl); font-style:normal; }
     <div class="text-col">
       <div class="eyebrow">Embeddings</div>
       <h2>Not all vectors are <em>embeddings</em></h2>
-      <p class="body">I can generate <code style="background:rgba(167,139,250,0.1);padding:2px 7px;border-radius:4px;font-family:'JetBrains Mono',monospace;font-size:14px;color:var(--vl)">[7.3, -4.8, 15.2]</code> right now. That's a vector — but it means nothing.</p>
-      <p class="body">An <strong>embedding</strong> is a vector produced by a <em>trained neural network</em>. The network learned from billions of words — which appear together, which sentences mean similar things, which concepts connect.</p>
+      <p class="body">I can generate <code style="background:rgba(167,139,250,0.1);padding:2px 7px;border-radius:4px;font-family:'JetBrains Mono',monospace;font-size:14px;color:var(--vl)">[7.3, -4.8, 15.2]</code> right now. That's a vector but it means nothing.</p>
+      <p class="body">An <strong>embedding</strong> is a vector produced by a <em>trained neural network</em>. The network learned from billions of words which appear together, which sentences mean similar things, which concepts connect.</p>
       <p class="body">The result: a vector whose numbers encode <strong>learned meaning</strong>, not randomness.</p>
       <div class="insight"><p>Think of embeddings as <strong>compressed meaning</strong>. Thousands of words and relationships compressed into a list of numbers that a computer can reason about mathematically.</p></div>
     </div>
@@ -397,7 +397,7 @@ p.body em { color:var(--gl); font-style:normal; }
     <div class="text-col">
       <div class="eyebrow">How Models Learn</div>
       <h2>Learning meaning from <em>patterns</em></h2>
-      <p class="body">Models don't get programmed with facts. They process enormous text corpora and repeatedly predict missing words — learning which concepts cluster together through pure pattern recognition.</p>
+      <p class="body">Models don't get programmed with facts. They process enormous text corpora and repeatedly predict missing words, learning which concepts cluster together through pure pattern recognition.</p>
       <p class="body">Given: <em>"The cat sat on the ____"</em> — the model learns "mat" is far more likely than "airplane". Do this <strong>billions of times</strong> and the model discovers surprisingly rich relationships.</p>
       <div class="card gold" style="margin-top:4px">
         <h3 style="font-size:14px;color:var(--gl);margin-bottom:10px">What it discovers without being told</h3>
@@ -501,7 +501,7 @@ p.body em { color:var(--gl); font-style:normal; }
       <div class="eyebrow">Similarity Search</div>
       <h2>Comparing meaning with <em>cosine similarity</em></h2>
       <p class="body">Now every word, sentence, and document is a vector. How do we find which ones are similar?</p>
-      <p class="body">Cosine similarity measures the <strong>angle</strong> between two vectors — not their size. Two sentences can be different lengths but mean the same thing. They'll point in the same direction.</p>
+      <p class="body">Cosine similarity measures the <strong>angle</strong> between two vectors not their size. Two sentences can be different lengths but mean the same thing. They'll point in the same direction.</p>
       <div style="background:var(--darker);border:1px solid rgba(34,211,238,0.25);border-radius:12px;padding:18px 22px;margin-top:4px;text-align:center">
         <div style="font-family:'Space Grotesk',sans-serif;font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--teal);margin-bottom:8px">Formula</div>
         <div style="font-family:'JetBrains Mono',monospace;font-size:20px;color:var(--white)">cos(θ) = (A · B) / (‖A‖ × ‖B‖)</div>
@@ -555,9 +555,9 @@ p.body em { color:var(--gl); font-style:normal; }
       <div class="eyebrow">Semantic Search</div>
       <h2>Match <em>meaning</em>, not words</h2>
       <p class="body">You search: <em>"How do I reset my password?"</em><br>The document says: <em>"Account credential recovery process."</em></p>
-      <p class="body">Traditional keyword search fails — none of the words match. Semantic search succeeds because both query and document embed to <strong>similar vectors</strong>. They express the same intent.</p>
-      <p class="body">This is why modern AI-powered search feels so much smarter than old-school search. <strong>It's matching meaning, not characters.</strong></p>
-      <div class="insight"><p>The embedding model doesn't care about exact wording. It cares about the <em>direction</em> the text points in vector space — and similar intents point in similar directions.</p></div>
+      <p class="body">Traditional keyword search fails, none of the words match. Semantic search succeeds because both query and document embed to <strong>similar vectors</strong>. They express the same intent.</p>
+      <p class="body">This is why modern AI powered search feels so much smarter than old school search. <strong>It's matching meaning, not characters.</strong></p>
+      <div class="insight"><p>The embedding model doesn't care about exact wording. It cares about the <em>direction</em> the text points in vector space, and similar intents point in similar directions.</p></div>
     </div>
     <div>
       <svg viewBox="0 0 400 320" width="100%" height="320">
@@ -709,7 +709,7 @@ p.body em { color:var(--gl); font-style:normal; }
         </div>
         <div>
           <div style="font-size:13px;color:var(--muted);margin-bottom:6px;font-family:'Space Grotesk',sans-serif;font-weight:600">Why cosine similarity?</div>
-          <div style="font-size:13px;color:rgba(249,250,251,0.8);line-height:1.65">Measures directional similarity while being insensitive to vector magnitude — correct signal for text of varying length.</div>
+          <div style="font-size:13px;color:rgba(249,250,251,0.8);line-height:1.65">Measures directional similarity while being insensitive to vector magnitude, correct signal for text of varying length.</div>
         </div>
         <div>
           <div style="font-size:13px;color:var(--muted);margin-bottom:6px;font-family:'Space Grotesk',sans-serif;font-weight:600">Where are embeddings used?</div>
@@ -718,7 +718,7 @@ p.body em { color:var(--gl); font-style:normal; }
       </div>
     </div>
     <div style="text-align:center;margin-top:22px;font-size:14px;color:var(--muted)">
-      Day 2 → <span style="color:var(--vl);font-weight:600">Vector Databases</span> — storing millions of embeddings and querying them at scale
+      Next → <span style="color:var(--vl);font-weight:600">Vector Databases</span> — storing millions of embeddings and querying them at scale
     </div>
   </div>
 </div>

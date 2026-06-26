@@ -1,0 +1,466 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Semantic Search Cheat Sheet — WiseLabs</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --bg: #0D1B2A; --surface: #111827; --surface2: #1a2744;
+  --violet: #7C3AED; --violet-light: #a78bfa;
+  --gold: #F59E0B; --gold-light: #fcd34d;
+  --white: #F9FAFB; --muted: #6B7280; --border: rgba(124,58,237,0.18);
+  --green: #10B981; --pink: #F472B6; --teal: #22d3ee;
+}
+html { scroll-behavior: smooth; }
+body { background: var(--bg); color: var(--white); font-family: 'Inter', sans-serif; line-height: 1.6; }
+
+/* NAV */
+nav { position: fixed; top: 0; left: 0; right: 0; z-index: 200; display: flex; align-items: center; justify-content: space-between; padding: 16px 48px; background: rgba(13,27,42,0.95); backdrop-filter: blur(14px); border-bottom: 1px solid rgba(124,58,237,0.12); }
+.nav-logo { font-family: 'Space Grotesk', sans-serif; font-size: 20px; font-weight: 700; color: var(--white); text-decoration: none; }
+.nav-logo span { color: var(--violet-light); }
+.nav-back { font-family: 'Space Grotesk', sans-serif; font-size: 13px; font-weight: 600; color: var(--muted); text-decoration: none; display: flex; align-items: center; gap: 6px; transition: color 0.2s; }
+.nav-back:hover { color: var(--white); }
+
+/* GATE OVERLAY */
+#gate {
+  position: fixed; inset: 0; z-index: 100;
+  background: linear-gradient(to bottom, transparent 0%, rgba(13,27,42,0.7) 30%, rgba(13,27,42,0.97) 55%, #0D1B2A 70%);
+  display: flex; align-items: flex-end; justify-content: center;
+  padding-bottom: 8vh;
+  pointer-events: all;
+}
+.gate-box {
+  background: var(--surface);
+  border: 1px solid rgba(124,58,237,0.35);
+  border-radius: 20px; padding: 40px 44px;
+  max-width: 480px; width: 90%;
+  text-align: center;
+  box-shadow: 0 32px 80px rgba(0,0,0,0.6), 0 0 0 1px rgba(124,58,237,0.1);
+}
+.gate-icon { font-size: 40px; margin-bottom: 16px; }
+.gate-box h2 { font-family: 'Space Grotesk', sans-serif; font-size: 22px; font-weight: 700; margin-bottom: 10px; }
+.gate-box p { font-size: 15px; color: rgba(249,250,251,0.6); margin-bottom: 24px; line-height: 1.65; }
+.gate-price {
+  display: inline-block;
+  font-family: 'Space Grotesk', sans-serif; font-size: 28px; font-weight: 700;
+  color: var(--gold-light); margin-bottom: 24px;
+}
+.gate-price span { font-size: 14px; color: var(--muted); font-weight: 400; }
+.gate-includes { display: flex; flex-direction: column; gap: 8px; margin-bottom: 28px; text-align: left; }
+.gate-includes li { font-size: 14px; color: rgba(249,250,251,0.75); padding-left: 22px; position: relative; list-style: none; }
+.gate-includes li::before { content: '✓'; position: absolute; left: 0; color: var(--green); font-weight: 700; }
+.gate-form { display: flex; flex-direction: column; gap: 12px; }
+.gate-input {
+  width: 100%; padding: 14px 16px; border-radius: 10px;
+  background: rgba(255,255,255,0.05); border: 1px solid rgba(124,58,237,0.3);
+  color: var(--white); font-size: 15px; font-family: 'Inter', sans-serif;
+  outline: none; transition: border-color 0.2s;
+}
+.gate-input:focus { border-color: var(--violet-light); }
+.gate-input::placeholder { color: var(--muted); }
+.gate-btn {
+  width: 100%; padding: 14px; border-radius: 10px;
+  background: var(--violet); border: none; color: white;
+  font-family: 'Space Grotesk', sans-serif; font-size: 15px; font-weight: 700;
+  cursor: pointer; transition: background 0.2s, transform 0.15s;
+}
+.gate-btn:hover { background: #6d28d9; transform: translateY(-1px); }
+.gate-note { font-size: 12px; color: var(--muted); margin-top: 8px; }
+.gate-free { font-size: 13px; color: var(--violet-light); margin-top: 12px; }
+.gate-free a { color: var(--violet-light); }
+
+/* CHEATSHEET CONTENT */
+#content { max-width: 1000px; margin: 0 auto; padding: 100px 48px 80px; filter: blur(6px); pointer-events: none; user-select: none; transition: filter 0.6s ease; }
+#content.unlocked { filter: none; pointer-events: all; user-select: auto; }
+
+/* HEADER */
+.cs-header { margin-bottom: 40px; }
+.cs-eyebrow { font-family: 'Space Grotesk', sans-serif; font-size: 11px; font-weight: 700; letter-spacing: 3px; text-transform: uppercase; color: var(--violet-light); margin-bottom: 10px; }
+.cs-header h1 { font-family: 'Space Grotesk', sans-serif; font-size: 36px; font-weight: 700; letter-spacing: -1px; line-height: 1.1; margin-bottom: 10px; }
+.cs-header h1 em { font-style: normal; color: var(--gold-light); }
+.cs-meta { display: flex; gap: 12px; flex-wrap: wrap; }
+.cs-badge { font-family: 'Space Grotesk', sans-serif; font-size: 11px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; padding: 4px 12px; border-radius: 20px; }
+.badge-topic { background: rgba(124,58,237,0.15); border: 1px solid rgba(124,58,237,0.35); color: var(--violet-light); }
+.badge-day { background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1); color: var(--muted); }
+.badge-paid { background: rgba(245,158,11,0.12); border: 1px solid rgba(245,158,11,0.3); color: var(--gold-light); }
+
+/* SECTION */
+.cs-section { margin-bottom: 44px; }
+.cs-section-title { font-family: 'Space Grotesk', sans-serif; font-size: 13px; font-weight: 700; letter-spacing: 2.5px; text-transform: uppercase; color: var(--muted); margin-bottom: 16px; padding-bottom: 10px; border-bottom: 1px solid rgba(255,255,255,0.07); display: flex; align-items: center; gap: 10px; }
+.cs-section-title::before { content: ''; display: inline-block; width: 16px; height: 2px; background: var(--violet-light); }
+
+/* KEY TERMS */
+.terms-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.term-card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 16px 20px; }
+.term-name { font-family: 'Space Grotesk', sans-serif; font-size: 14px; font-weight: 700; color: var(--violet-light); margin-bottom: 6px; }
+.term-def { font-size: 14px; color: rgba(249,250,251,0.75); line-height: 1.55; }
+.term-card.gold { border-color: rgba(245,158,11,0.22); }
+.term-card.gold .term-name { color: var(--gold-light); }
+.term-card.green { border-color: rgba(16,185,129,0.2); }
+.term-card.green .term-name { color: var(--green); }
+.term-card.teal { border-color: rgba(34,211,238,0.2); }
+.term-card.teal .term-name { color: var(--teal); }
+.term-card.pink { border-color: rgba(244,114,182,0.2); }
+.term-card.pink .term-name { color: var(--pink); }
+
+/* FORMULAS */
+.formula-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.formula-card { background: #050D16; border: 1px solid rgba(34,211,238,0.2); border-radius: 12px; padding: 18px 20px; }
+.formula-label { font-family: 'Space Grotesk', sans-serif; font-size: 11px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: var(--teal); margin-bottom: 8px; }
+.formula-text { font-family: 'Courier New', monospace; font-size: 16px; color: var(--white); margin-bottom: 8px; }
+.formula-note { font-size: 12px; color: var(--muted); line-height: 1.5; }
+
+/* INTERVIEW QS */
+.iq-list { display: flex; flex-direction: column; gap: 16px; }
+.iq-card { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 20px 24px; }
+.iq-q { font-family: 'Space Grotesk', sans-serif; font-size: 14px; font-weight: 700; color: var(--white); margin-bottom: 10px; display: flex; gap: 10px; }
+.iq-num { background: rgba(124,58,237,0.15); color: var(--violet-light); font-size: 12px; padding: 2px 9px; border-radius: 6px; flex-shrink: 0; height: fit-content; margin-top: 1px; }
+.iq-a { font-size: 14px; color: rgba(249,250,251,0.72); line-height: 1.7; padding-left: 38px; }
+.iq-a strong { color: var(--white); }
+
+/* NUMBERS */
+.numbers-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+.number-card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 16px; text-align: center; }
+.number-val { font-family: 'Space Grotesk', sans-serif; font-size: 22px; font-weight: 700; color: var(--violet-light); margin-bottom: 4px; }
+.number-label { font-size: 12px; color: var(--muted); line-height: 1.4; }
+
+/* MISTAKES */
+.mistakes-list { display: flex; flex-direction: column; gap: 10px; }
+.mistake-row { background: var(--surface); border: 1px solid rgba(244,114,182,0.15); border-radius: 10px; padding: 14px 18px; display: flex; gap: 14px; align-items: flex-start; }
+.mistake-x { color: var(--pink); font-weight: 700; font-size: 15px; flex-shrink: 0; }
+.mistake-text { font-size: 14px; color: rgba(249,250,251,0.75); line-height: 1.55; }
+.mistake-fix { color: var(--green); font-weight: 600; display: block; margin-top: 4px; font-size: 13px; }
+
+/* STUCK */
+.stuck-list { display: flex; flex-direction: column; gap: 12px; }
+.stuck-card { background: linear-gradient(135deg, rgba(124,58,237,0.08), rgba(124,58,237,0.04)); border: 1px solid rgba(124,58,237,0.2); border-radius: 12px; padding: 16px 20px; }
+.stuck-q { font-family: 'Space Grotesk', sans-serif; font-size: 12px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; color: var(--muted); margin-bottom: 8px; }
+.stuck-a { font-size: 14px; color: rgba(249,250,251,0.82); line-height: 1.65; }
+
+/* COMPARISON */
+.mini-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+.mini-table th { font-family: 'Space Grotesk', sans-serif; font-size: 11px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; color: var(--muted); padding: 10px 14px; border-bottom: 1px solid rgba(255,255,255,0.08); text-align: left; }
+.mini-table td { padding: 10px 14px; border-bottom: 1px solid rgba(255,255,255,0.04); color: rgba(249,250,251,0.75); vertical-align: top; }
+.mini-table tr:last-child td { border-bottom: none; }
+.y { color: var(--green); font-weight: 600; }
+.n { color: var(--pink); font-weight: 600; }
+.p { color: var(--gold-light); font-weight: 600; }
+
+/* PRINT BUTTON */
+.print-btn { display: inline-flex; align-items: center; gap: 8px; background: rgba(124,58,237,0.12); border: 1px solid rgba(124,58,237,0.3); color: var(--violet-light); font-family: 'Space Grotesk', sans-serif; font-size: 13px; font-weight: 600; padding: 10px 20px; border-radius: 8px; cursor: pointer; transition: background 0.2s; text-decoration: none; margin-bottom: 32px; }
+.print-btn:hover { background: rgba(124,58,237,0.22); }
+
+/* footer */
+.cs-footer { border-top: 1px solid var(--border); margin-top: 60px; padding-top: 28px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; }
+.cs-footer p { font-size: 13px; color: var(--muted); }
+.cs-footer a { color: var(--violet-light); text-decoration: none; }
+
+@media (max-width: 768px) {
+  nav { padding: 14px 24px; }
+  #content { padding: 90px 24px 60px; }
+  .terms-grid, .formula-row, .numbers-grid { grid-template-columns: 1fr; }
+  .gate-box { padding: 28px 24px; }
+}
+@media print {
+  nav, #gate, .print-btn { display: none !important; }
+  #content { filter: none !important; padding-top: 20px; }
+  body { background: white; color: black; }
+  .term-card, .formula-card, .iq-card, .number-card, .mistake-row, .stuck-card { border: 1px solid #ddd; background: #f9f9f9; }
+  .term-name { color: #5b21b6; }
+  .iq-a, .term-def, .stuck-a, .mistake-text { color: #333; }
+}
+</style>
+</head>
+<body>
+
+<nav>
+  <a href="../../index.html" class="nav-logo">Wise<span>Labs</span></a>
+  <a href="../semantic-search.html" class="nav-back">← Back to full notes</a>
+</nav>
+
+<!-- ══ GATE ══ -->
+<div id="gate">
+  <div class="gate-box">
+    <div class="gate-icon">⚡</div>
+    <h2>Interview Cheat Sheet</h2>
+    <p>One page. Everything you need to walk into any AI engineering interview on Semantic Search and answer confidently.</p>
+    <div class="gate-price">₹149 <span>/ one time</span></div>
+    <ul class="gate-includes">
+      <li>10 key terms with one-liner definitions</li>
+      <li>All formulas with plain-English notes</li>
+      <li>6 interview Qs with 3-sentence answers</li>
+      <li>Numbers worth memorising (k=60, 95% recall, 5ms...)</li>
+      <li>"Say this if stuck" fallback answers</li>
+      <li>Common mistakes interviewers catch</li>
+      <li>Print-friendly, use forever</li>
+    </ul>
+    <div class="gate-form">
+      <input type="email" class="gate-input" id="gate-email" placeholder="your@email.com" />
+      <button class="gate-btn" onclick="submitGate()">Get the cheat sheet →</button>
+    </div>
+    <p class="gate-note">Your details are sent to Akanksha directly. You'll receive the unlock link within a few hours.</p>
+    <p class="gate-free">Want the full free notes instead? <a href="../semantic-search.html">Read them here →</a></p>
+  </div>
+</div>
+
+<!-- ══ CHEATSHEET CONTENT ══ -->
+<div id="content">
+
+  <div class="cs-header">
+    <div class="cs-eyebrow">WiseLabs · AI Engineering · Day 1</div>
+    <h1>Semantic Search — <em>Interview Cheat Sheet</em></h1>
+    <div class="cs-meta">
+      <span class="cs-badge badge-topic">AI Engineering</span>
+      <span class="cs-badge badge-day">Day 1</span>
+      <span class="cs-badge badge-paid">⚡ Premium</span>
+    </div>
+  </div>
+
+  <a href="#" onclick="window.print();return false;" class="print-btn">🖨️ Print this page</a>
+
+  <!-- KEY TERMS -->
+  <div class="cs-section">
+    <div class="cs-section-title">Key Terms — One-liner definitions</div>
+    <div class="terms-grid">
+      <div class="term-card">
+        <div class="term-name">BM25</div>
+        <div class="term-def">Lexical ranking algorithm combining term frequency and inverse document frequency. Fast, explainable, blind to synonyms and paraphrases.</div>
+      </div>
+      <div class="term-card teal">
+        <div class="term-name">Semantic Search</div>
+        <div class="term-def">Retrieval by meaning rather than exact word match. Query and documents are embedded into vectors; nearest vectors are returned as results.</div>
+      </div>
+      <div class="term-card green">
+        <div class="term-name">Cosine Similarity</div>
+        <div class="term-def">Similarity metric measuring the angle between two vectors, not their magnitude. Score: 1.0 (identical) to −1.0 (opposite). Standard for text embeddings.</div>
+      </div>
+      <div class="term-card">
+        <div class="term-name">ANN Search</div>
+        <div class="term-def">Approximate Nearest Neighbour — finds close vectors without scanning everything. Trades ~5% recall for 100–1000x speed vs exact search.</div>
+      </div>
+      <div class="term-card gold">
+        <div class="term-name">HNSW</div>
+        <div class="term-def">Hierarchical Navigable Small World — the most common ANN algorithm. Builds a layered graph; navigates greedily from sparse to dense layers at query time.</div>
+      </div>
+      <div class="term-card gold">
+        <div class="term-name">Hybrid Search</div>
+        <div class="term-def">Combining BM25 and semantic search results. BM25 handles exact matches; semantic handles meaning. Merged using Reciprocal Rank Fusion.</div>
+      </div>
+      <div class="term-card pink">
+        <div class="term-name">RRF (Reciprocal Rank Fusion)</div>
+        <div class="term-def">Algorithm to merge multiple ranked lists using rank position (not raw scores). score = Σ 1/(k + rank). Default k=60. No normalisation needed.</div>
+      </div>
+      <div class="term-card">
+        <div class="term-name">Bi-encoder</div>
+        <div class="term-def">Embeds query and document independently into vectors. Fast, scalable. Used for first-stage retrieval. Limitation: no cross-attention between query and doc.</div>
+      </div>
+      <div class="term-card teal">
+        <div class="term-name">Cross-encoder</div>
+        <div class="term-def">Takes query and document as a pair, outputs a relevance score. Slow (can't pre-compute). Highly accurate. Used for second-stage reranking only.</div>
+      </div>
+      <div class="term-card green">
+        <div class="term-name">Two-Stage Retrieval</div>
+        <div class="term-def">Retrieve 50 candidates fast with bi-encoder → rerank to top 5 with cross-encoder. Standard production pattern for high-precision retrieval systems.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- FORMULAS -->
+  <div class="cs-section">
+    <div class="cs-section-title">Formulas Worth Knowing</div>
+    <div class="formula-row">
+      <div class="formula-card">
+        <div class="formula-label">Cosine Similarity</div>
+        <div class="formula-text">cos(θ) = (A · B) / (‖A‖ × ‖B‖)</div>
+        <div class="formula-note">When vectors are L2-normalised (as most models output), this equals dot product. 1.0 = same meaning · 0.0 = unrelated · −1.0 = opposite.</div>
+      </div>
+      <div class="formula-card">
+        <div class="formula-label">Reciprocal Rank Fusion</div>
+        <div class="formula-text">score(d) = Σ 1 / (k + rank(d))</div>
+        <div class="formula-note">k=60 (default, empirically chosen). Sum over all rankers. Uses rank positions not raw scores — no normalisation needed across incompatible scales.</div>
+      </div>
+      <div class="formula-card">
+        <div class="formula-label">BM25 (simplified)</div>
+        <div class="formula-text">IDF(q) · f(q,D) · (k₁+1) / (f(q,D) + k₁)</div>
+        <div class="formula-note">k₁ ≈ 1.2 (TF saturation) · b ≈ 0.75 (length normalisation). Backbone of Elasticsearch, Lucene, Solr.</div>
+      </div>
+      <div class="formula-card">
+        <div class="formula-label">HNSW Key Params</div>
+        <div class="formula-text">M · ef_construction · ef_search</div>
+        <div class="formula-note">M = connections per node (default 16). ef_construction = index quality (default 200). ef_search = query recall vs speed tradeoff.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- NUMBERS -->
+  <div class="cs-section">
+    <div class="cs-section-title">Numbers Worth Memorising</div>
+    <div class="numbers-grid">
+      <div class="number-card"><div class="number-val">60</div><div class="number-label">Default k value in RRF</div></div>
+      <div class="number-card"><div class="number-val">~95%</div><div class="number-label">Typical ANN recall vs exact search</div></div>
+      <div class="number-card"><div class="number-val">~5ms</div><div class="number-label">HNSW query time at 10M vectors</div></div>
+      <div class="number-card"><div class="number-val">50 → 5</div><div class="number-label">Two-stage: retrieve 50, rerank to 5</div></div>
+      <div class="number-card"><div class="number-val">1.0</div><div class="number-label">Cosine score = identical meaning</div></div>
+      <div class="number-card"><div class="number-val">O(n·d)</div><div class="number-label">Exact NN complexity per query</div></div>
+      <div class="number-card"><div class="number-val">16</div><div class="number-label">Default M (connections) in HNSW</div></div>
+      <div class="number-card"><div class="number-val">&lt;100ms</div><div class="number-label">Target end-to-end query latency</div></div>
+    </div>
+  </div>
+
+  <!-- INTERVIEW QS -->
+  <div class="cs-section">
+    <div class="cs-section-title">Interview Questions — 3-sentence answers</div>
+    <div class="iq-list">
+
+      <div class="iq-card">
+        <div class="iq-q"><span class="iq-num">Q1</span>Walk me through what happens when a user submits a query in a semantic search system.</div>
+        <div class="iq-a">The query is passed through the <strong>same embedding model used during indexing</strong>, producing a query vector. This vector is sent to the vector database, which uses an ANN algorithm like HNSW to return the top-K most similar document vectors by cosine similarity. Optionally, these candidates are passed through a cross-encoder reranker for precision before being returned or fed to an LLM.</div>
+      </div>
+
+      <div class="iq-card">
+        <div class="iq-q"><span class="iq-num">Q2</span>Why combine keyword search and semantic search in production?</div>
+        <div class="iq-a">Pure semantic search fails on <strong>exact string matches</strong> — product codes, error messages, proper nouns — where the nearest semantic neighbour might be completely wrong. Pure keyword search misses synonyms, paraphrases, and intent. Hybrid search with RRF gets the best of both: BM25 handles structured exact matches, semantic handles natural language, and they're merged without needing to normalise incompatible score scales.</div>
+      </div>
+
+      <div class="iq-card">
+        <div class="iq-q"><span class="iq-num">Q3</span>What is RRF and why k=60?</div>
+        <div class="iq-a">RRF merges multiple ranked lists by assigning each document <strong>score = 1/(k + rank)</strong> per list and summing — using rank positions, not raw scores, so no normalisation is needed. The constant k=60 was found empirically to reduce the outsized influence of rank-1 results while still rewarding consistently high-ranked documents. It's robust and parameter-free in practice — just use the default.</div>
+      </div>
+
+      <div class="iq-card">
+        <div class="iq-q"><span class="iq-num">Q4</span>What are the failure modes of semantic search?</div>
+        <div class="iq-a">Four main ones: <strong>exact string needs</strong> (serial numbers, error codes where nearest semantic neighbour is wrong), <strong>out-of-domain vocabulary</strong> (model wasn't trained on the terminology — embeddings are noise), <strong>very short queries</strong> (no context for the model — "Python" is ambiguous), and <strong>stale embeddings</strong> (document updated but not re-indexed — silent failure). Each has a different fix: hybrid search, domain fine-tuning, query expansion, and a re-indexing pipeline respectively.</div>
+      </div>
+
+      <div class="iq-card">
+        <div class="iq-q"><span class="iq-num">Q5</span>How does ANN differ from exact nearest neighbour search and why does it matter?</div>
+        <div class="iq-a">Exact NN is <strong>O(n·d)</strong> per query — at 10M vectors with 768 dimensions, that's billions of multiplications, far too slow for interactive latency. ANN algorithms like HNSW build a navigable graph structure allowing greedy search in O(log n), trading ~5% recall for 100–1000x speed gains. In practice the 5% you miss are usually lower-quality results — ANN is always the right choice at production scale.</div>
+      </div>
+
+      <div class="iq-card">
+        <div class="iq-q"><span class="iq-num">Q6</span>If semantic search quality is poor, what would you investigate first?</div>
+        <div class="iq-a">Start with <strong>chunk quality</strong> — bad chunking (too small, cut mid-sentence) is the most common cause and is invisible without manually inspecting the chunks. Then check <strong>raw cosine scores</strong> — if everything is below 0.5, the query is likely out-of-domain. Finally verify <strong>model consistency</strong> — query and index must use the same model, and a mismatch produces garbage results silently. For systematic diagnosis, run RAGAS context precision and recall to pinpoint where in the pipeline retrieval is losing information.</div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- STUCK -->
+  <div class="cs-section">
+    <div class="cs-section-title">Say This If Stuck</div>
+    <div class="stuck-list">
+      <div class="stuck-card">
+        <div class="stuck-q">If asked about choosing between BM25 and semantic search</div>
+        <div class="stuck-a">"In production I'd default to hybrid — BM25 handles exact matches and structured data well, semantic handles natural language and intent. The performance of either alone is almost always worse than both combined with RRF, so unless there's a strong reason to simplify, hybrid is my starting point."</div>
+      </div>
+      <div class="stuck-card">
+        <div class="stuck-q">If asked about poor retrieval quality</div>
+        <div class="stuck-a">"The most likely culprit is chunking — it's the part most people get wrong and it has an outsized impact on retrieval quality. I'd inspect the chunks manually first before touching the model or the retrieval algorithm."</div>
+      </div>
+      <div class="stuck-card">
+        <div class="stuck-q">If asked why cosine similarity instead of Euclidean distance</div>
+        <div class="stuck-a">"Cosine measures the angle between vectors, not their length — so two sentences meaning the same thing point in the same direction regardless of how long they are. Euclidean distance would penalise longer sentences even when the meaning is identical, which is the wrong signal for text."</div>
+      </div>
+      <div class="stuck-card">
+        <div class="stuck-q">If asked about model selection for embeddings</div>
+        <div class="stuck-a">"For local development and learning I'd use all-MiniLM-L6-v2 — free, fast, runs locally. For production, I'd evaluate text-embedding-3-small from OpenAI — excellent quality-to-cost ratio. If I need the best open-source option, BGE-large from BAAI consistently tops the MTEB benchmark."</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MISTAKES -->
+  <div class="cs-section">
+    <div class="cs-section-title">Common Mistakes Interviewers Catch</div>
+    <div class="mistakes-list">
+      <div class="mistake-row">
+        <span class="mistake-x">✗</span>
+        <div class="mistake-text">
+          Using different embedding models for indexing and querying — produces completely wrong results silently.
+          <span class="mistake-fix">✓ Always use the same model. If you change models, re-embed the entire corpus.</span>
+        </div>
+      </div>
+      <div class="mistake-row">
+        <span class="mistake-x">✗</span>
+        <div class="mistake-text">
+          Treating cosine similarity scores as probabilities ("85% confident this is relevant").
+          <span class="mistake-fix">✓ Cosine scores are not calibrated probabilities. Never present them as such without explicit calibration.</span>
+        </div>
+      </div>
+      <div class="mistake-row">
+        <span class="mistake-x">✗</span>
+        <div class="mistake-text">
+          Using semantic search for exact identifiers (order IDs, error codes, serial numbers).
+          <span class="mistake-fix">✓ Use BM25 or direct lookup for structured identifiers — semantic nearest neighbour is wrong here.</span>
+        </div>
+      </div>
+      <div class="mistake-row">
+        <span class="mistake-x">✗</span>
+        <div class="mistake-text">
+          Skipping reranking for high-stakes top-K results and relying on ANN output directly.
+          <span class="mistake-fix">✓ ANN is approximate. For precision-critical results, add a cross-encoder reranker on top-50 candidates.</span>
+        </div>
+      </div>
+      <div class="mistake-row">
+        <span class="mistake-x">✗</span>
+        <div class="mistake-text">
+          Forgetting that document updates require re-embedding — assuming the index is always fresh.
+          <span class="mistake-fix">✓ Always have a re-indexing pipeline triggered on document update events.</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MINI COMPARISON -->
+  <div class="cs-section">
+    <div class="cs-section-title">Quick Reference — Keyword vs Semantic vs Hybrid</div>
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:14px;overflow:hidden">
+      <table class="mini-table">
+        <thead><tr><th>Feature</th><th>BM25</th><th>Semantic</th><th>Hybrid</th></tr></thead>
+        <tbody>
+          <tr><td>Synonyms / paraphrases</td><td class="n">✗</td><td class="y">✓</td><td class="y">✓</td></tr>
+          <tr><td>Exact string match</td><td class="y">✓</td><td class="n">✗</td><td class="y">✓</td></tr>
+          <tr><td>Short ambiguous queries</td><td class="p">~</td><td class="n">✗</td><td class="p">~</td></tr>
+          <tr><td>Out-of-domain terms</td><td class="y">✓</td><td class="n">✗</td><td class="p">~</td></tr>
+          <tr><td>Query latency</td><td class="y">Very fast</td><td class="p">Fast (ANN)</td><td class="n">Slower</td></tr>
+          <tr><td>Explainability</td><td class="y">High</td><td class="n">Low</td><td class="p">Medium</td></tr>
+          <tr><td>Best default choice</td><td>Structured / known vocab</td><td>NL intent queries</td><td class="y">Most production</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="cs-footer">
+    <p>WiseLabs · <a href="../../index.html">wiselabs.in</a> · AI Engineering Day 1</p>
+    <p>Questions? <a href="mailto:akanksha.rajhans@oracle.com">akanksha.rajhans@oracle.com</a></p>
+  </div>
+
+</div><!-- /content -->
+
+<script>
+function submitGate() {
+  const email = document.getElementById('gate-email').value.trim();
+  if (!email || !email.includes('@')) {
+    document.getElementById('gate-email').style.borderColor = 'var(--pink)';
+    return;
+  }
+  // Send email notification via mailto
+  const subject = encodeURIComponent('WiseLabs Cheat Sheet Request — Semantic Search');
+  const body = encodeURIComponent(`New cheat sheet request:\n\nEmail: ${email}\nTopic: Semantic Search\nPage: wiselabs.in/ai/cheatsheet/semantic-search.html`);
+  window.open(`mailto:akanksha.rajhans@oracle.com?subject=${subject}&body=${body}`);
+  // Unlock content immediately after form submit
+  unlockContent();
+}
+
+function unlockContent() {
+  document.getElementById('gate').style.display = 'none';
+  document.getElementById('content').classList.add('unlocked');
+}
+
+// Dev shortcut: ?preview=true in URL unlocks without email
+if (window.location.search.includes('preview=true')) unlockContent();
+</script>
+</body>
+</html>

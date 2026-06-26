@@ -1,0 +1,758 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Day 1 — Embeddings & Semantic Search · WiseLabs</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600;700;800&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --bg: #0D1B2A; --card: #1E3A5F; --dark: #070F1A; --darker: #040A12;
+  --violet: #7C3AED; --vl: #a78bfa; --vd: #4C1D95;
+  --gold: #F59E0B; --gl: #fcd34d;
+  --white: #F9FAFB; --muted: #6B7280; --muted2: #9CA3AF;
+  --green: #10B981; --pink: #F472B6; --teal: #22d3ee; --red: #EF4444;
+}
+html, body { width:100%; height:100%; background:var(--bg); color:var(--white); font-family:'Inter',sans-serif; overflow:hidden; }
+
+/* progress */
+#progress { position:fixed; top:0; left:0; height:3px; background:linear-gradient(90deg,var(--violet),var(--vl)); transition:width 0.4s ease; z-index:100; box-shadow:0 0 8px var(--vl); }
+
+/* slide container */
+#deck { width:100%; height:100%; position:relative; }
+.slide { position:absolute; inset:0; display:flex; flex-direction:column; justify-content:center; align-items:center; padding:56px 80px; opacity:0; pointer-events:none; transition:opacity 0.4s ease; }
+.slide.active { opacity:1; pointer-events:all; }
+
+/* nav */
+#nav { position:fixed; bottom:24px; left:50%; transform:translateX(-50%); display:flex; gap:12px; align-items:center; z-index:100; }
+.nb { background:rgba(13,27,42,0.9); border:1px solid rgba(167,139,250,0.3); color:var(--vl); font-family:'Space Grotesk',sans-serif; font-size:13px; font-weight:600; padding:9px 22px; border-radius:8px; cursor:pointer; transition:all 0.2s; backdrop-filter:blur(8px); }
+.nb:hover { background:var(--vl); color:var(--bg); }
+.nb:disabled { opacity:0.25; pointer-events:none; }
+#ctr { font-family:'Space Grotesk',sans-serif; font-size:12px; color:var(--muted); min-width:48px; text-align:center; }
+
+/* slide number badge */
+.slide-num { position:absolute; top:24px; right:32px; font-family:'Space Grotesk',sans-serif; font-size:11px; font-weight:700; letter-spacing:2px; color:var(--muted); }
+
+/* type */
+.eyebrow { font-family:'Space Grotesk',sans-serif; font-size:11px; font-weight:700; letter-spacing:3px; text-transform:uppercase; color:var(--vl); margin-bottom:14px; display:flex; align-items:center; gap:8px; }
+.eyebrow::before { content:''; display:inline-block; width:18px; height:2px; background:var(--vl); }
+h1 { font-family:'Space Grotesk',sans-serif; font-size:clamp(38px,5.5vw,70px); font-weight:800; line-height:1.06; letter-spacing:-2.5px; }
+h1 em { font-style:normal; color:var(--vl); }
+h1 .gold { color:var(--gl); }
+h2 { font-family:'Space Grotesk',sans-serif; font-size:clamp(26px,3.5vw,46px); font-weight:700; line-height:1.12; letter-spacing:-1.5px; }
+h2 em { font-style:normal; color:var(--vl); }
+h2 .gold { color:var(--gl); }
+h3 { font-family:'Space Grotesk',sans-serif; font-size:18px; font-weight:700; color:var(--gl); margin-bottom:8px; }
+p.body { font-size:17px; line-height:1.75; color:rgba(249,250,251,0.8); max-width:640px; }
+p.body strong { color:var(--white); }
+p.body em { color:var(--gl); font-style:normal; }
+
+/* layout */
+.two-col { display:grid; grid-template-columns:1fr 1fr; gap:52px; width:100%; max-width:1120px; align-items:center; }
+.two-col-wide { display:grid; grid-template-columns:1.1fr 0.9fr; gap:52px; width:100%; max-width:1120px; align-items:center; }
+.text-col { display:flex; flex-direction:column; gap:16px; }
+.center-col { display:flex; flex-direction:column; align-items:center; gap:20px; text-align:center; max-width:900px; }
+
+/* cards */
+.card { background:var(--card); border:1px solid rgba(167,139,250,0.18); border-radius:14px; padding:22px 26px; }
+.card.gold { border-color:rgba(245,158,11,0.35); }
+.card.green { border-color:rgba(16,185,129,0.28); }
+.card.pink { border-color:rgba(244,114,182,0.28); }
+.card.teal { border-color:rgba(34,211,238,0.25); }
+
+/* insight box */
+.insight { background:linear-gradient(135deg,rgba(245,158,11,0.13),rgba(245,158,11,0.06)); border:1px solid rgba(245,158,11,0.28); border-radius:12px; padding:16px 22px; max-width:680px; }
+.insight::before { content:'💡 Key insight'; display:block; font-family:'Space Grotesk',sans-serif; font-size:10px; font-weight:700; letter-spacing:2px; text-transform:uppercase; color:var(--gl); margin-bottom:7px; }
+.insight p { font-size:15px; color:rgba(249,250,251,0.88); line-height:1.65; margin:0; }
+
+/* warning */
+.warn { background:rgba(239,68,68,0.08); border:1px solid rgba(239,68,68,0.25); border-radius:12px; padding:14px 20px; }
+.warn p { font-size:14px; color:rgba(249,250,251,0.8); margin:0; line-height:1.6; }
+
+/* code */
+.code { background:var(--darker); border:1px solid rgba(167,139,250,0.18); border-radius:10px; padding:18px 22px; font-family:'JetBrains Mono',monospace; font-size:13px; line-height:2; color:#e2e8f0; overflow-x:auto; }
+.k { color:var(--pink); } .s { color:#86efac; } .c { color:#374151; font-style:italic; } .fn { color:var(--teal); } .n { color:var(--gl); } .num { color:#c084fc; }
+
+/* tag pill */
+.tag { display:inline-block; font-family:'Space Grotesk',sans-serif; font-size:12px; font-weight:600; padding:4px 13px; border-radius:20px; }
+.tag.v { background:rgba(167,139,250,0.12); border:1px solid rgba(167,139,250,0.3); color:var(--vl); }
+.tag.g { background:rgba(245,158,11,0.1); border:1px solid rgba(245,158,11,0.3); color:var(--gl); }
+.tag.gr { background:rgba(16,185,129,0.1); border:1px solid rgba(16,185,129,0.3); color:var(--green); }
+.tag.p { background:rgba(244,114,182,0.1); border:1px solid rgba(244,114,182,0.3); color:var(--pink); }
+.tag.t { background:rgba(34,211,238,0.1); border:1px solid rgba(34,211,238,0.25); color:var(--teal); }
+
+/* stat box */
+.stat { text-align:center; }
+.stat .num { font-family:'Space Grotesk',sans-serif; font-size:clamp(28px,3vw,44px); font-weight:800; color:var(--vl); letter-spacing:-1px; }
+.stat .lbl { font-size:13px; color:var(--muted); margin-top:4px; line-height:1.4; }
+
+/* animations */
+@keyframes float { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-8px)} }
+@keyframes pulse { 0%,100%{opacity:0.6} 50%{opacity:1} }
+.fl { animation:float 3s ease-in-out infinite; }
+.fl2 { animation:float 3.5s ease-in-out infinite 0.4s; }
+.fl3 { animation:float 4s ease-in-out infinite 0.8s; }
+
+/* ── SLIDE-SPECIFIC ── */
+
+/* S1 cover radial bg */
+#s1 { background:radial-gradient(ellipse at 25% 60%, rgba(124,58,237,0.18) 0%, transparent 60%); }
+
+/* S4 vector viz */
+.vec-demo { display:flex; flex-direction:column; gap:12px; }
+.vec-row { display:flex; align-items:center; gap:14px; }
+.vec-word { font-family:'Space Grotesk',sans-serif; font-weight:700; font-size:16px; width:80px; }
+.vec-bar-wrap { flex:1; height:10px; background:rgba(255,255,255,0.06); border-radius:99px; overflow:hidden; }
+.vec-bar { height:100%; border-radius:99px; }
+.vec-num { font-family:'JetBrains Mono',monospace; font-size:12px; color:var(--muted2); width:120px; }
+
+/* S10 pipeline */
+.pipe-step { background:var(--card); border:1px solid rgba(167,139,250,0.2); border-radius:12px; padding:14px 18px; display:flex; align-items:center; gap:14px; }
+.pipe-icon { font-size:24px; flex-shrink:0; }
+.pipe-text { font-family:'Space Grotesk',sans-serif; font-size:14px; font-weight:600; color:var(--white); }
+.pipe-sub { font-size:12px; color:var(--muted); margin-top:2px; }
+.pipe-arrow { color:var(--vl); font-size:18px; text-align:center; }
+</style>
+</head>
+<body>
+<div id="progress"></div>
+<div id="deck">
+
+<!-- ══════════════════════════════════════
+     SLIDE 1 — COVER
+══════════════════════════════════════ -->
+<div class="slide active" id="s1">
+  <div class="slide-num">01 / 11</div>
+  <div class="center-col">
+    <div class="eyebrow">WiseLabs · AI Engineering · Day 1</div>
+    <h1>Embeddings &amp;<br><em>Semantic Search</em></h1>
+    <p class="body" style="margin-top:8px;font-size:19px;color:rgba(249,250,251,0.6)">How machines convert language into math — and why that changes everything about how AI systems understand the world.</p>
+    <div style="display:flex;gap:10px;flex-wrap:wrap;justify-content:center;margin-top:12px">
+      <span class="tag v">What are embeddings</span>
+      <span class="tag v">Vectors & dimensions</span>
+      <span class="tag g">Embedding models</span>
+      <span class="tag g">Cosine similarity</span>
+      <span class="tag gr">Semantic search</span>
+      <span class="tag p">RAG pipeline</span>
+    </div>
+    <div style="margin-top:28px;display:flex;gap:32px;flex-wrap:wrap;justify-content:center">
+      <div class="stat"><div class="num">11</div><div class="lbl">slides</div></div>
+      <div class="stat"><div class="num">~12</div><div class="lbl">min video</div></div>
+      <div class="stat"><div class="num">Day 1</div><div class="lbl">of the journey</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════
+     SLIDE 2 — THE FUNDAMENTAL PROBLEM
+══════════════════════════════════════ -->
+<div class="slide" id="s2">
+  <div class="slide-num">02 / 11</div>
+  <div class="two-col">
+    <div class="text-col">
+      <div class="eyebrow">The Problem</div>
+      <h2>Machines see <em>characters</em>, not meaning</h2>
+      <p class="body">Humans instantly understand that <strong>Car</strong> and <strong>Automobile</strong> mean the same thing. That <strong>King</strong> and <strong>Queen</strong> are related. That <strong>Doctor</strong> and <strong>Hospital</strong> connect.</p>
+      <p class="body">A computer sees the word <strong>"king"</strong> as just four characters — K, I, N, G — or even more fundamentally, as binary numbers in memory. No royalty. No relationship to queen. No meaning whatsoever.</p>
+      <div class="insight"><p>Machines are incredible at math. They're terrible at understanding language directly. The solution: <strong>convert language into numbers that preserve meaning.</strong></p></div>
+    </div>
+    <div>
+      <svg viewBox="0 0 400 340" width="100%" height="340">
+        <!-- Human side -->
+        <text x="90" y="22" text-anchor="middle" fill="var(--green)" font-size="11" font-family="Space Grotesk" font-weight="700" letter-spacing="2">HUMAN UNDERSTANDS</text>
+        <rect x="10" y="32" width="160" height="38" rx="9" fill="rgba(16,185,129,0.1)" stroke="rgba(16,185,129,0.35)"/>
+        <text x="90" y="57" text-anchor="middle" fill="var(--white)" font-size="15" font-family="Space Grotesk" font-weight="700">Car = Automobile</text>
+        <rect x="10" y="78" width="160" height="38" rx="9" fill="rgba(16,185,129,0.1)" stroke="rgba(16,185,129,0.35)"/>
+        <text x="90" y="103" text-anchor="middle" fill="var(--white)" font-size="15" font-family="Space Grotesk" font-weight="700">King ↔ Queen</text>
+        <rect x="10" y="124" width="160" height="38" rx="9" fill="rgba(16,185,129,0.1)" stroke="rgba(16,185,129,0.35)"/>
+        <text x="90" y="149" text-anchor="middle" fill="var(--white)" font-size="15" font-family="Space Grotesk" font-weight="700">Doctor → Hospital</text>
+        <!-- Computer side -->
+        <text x="310" y="22" text-anchor="middle" fill="var(--pink)" font-size="11" font-family="Space Grotesk" font-weight="700" letter-spacing="2">COMPUTER SEES</text>
+        <rect x="220" y="32" width="160" height="38" rx="9" fill="rgba(244,114,182,0.08)" stroke="rgba(244,114,182,0.3)"/>
+        <text x="310" y="57" text-anchor="middle" fill="var(--pink)" font-size="14" font-family="JetBrains Mono">"king" = chars</text>
+        <rect x="220" y="78" width="160" height="38" rx="9" fill="rgba(244,114,182,0.08)" stroke="rgba(244,114,182,0.3)"/>
+        <text x="310" y="57" text-anchor="middle" fill="var(--pink)" font-size="14" font-family="JetBrains Mono"></text>
+        <text x="310" y="103" text-anchor="middle" fill="var(--pink)" font-size="14" font-family="JetBrains Mono">K I N G</text>
+        <rect x="220" y="124" width="160" height="38" rx="9" fill="rgba(244,114,182,0.08)" stroke="rgba(244,114,182,0.3)"/>
+        <text x="310" y="149" text-anchor="middle" fill="var(--pink)" font-size="14" font-family="JetBrains Mono">01101011...</text>
+        <!-- VS divider -->
+        <rect x="181" y="60" width="38" height="60" rx="8" fill="var(--vd)"/>
+        <text x="200" y="97" text-anchor="middle" fill="var(--vl)" font-size="13" font-family="Space Grotesk" font-weight="800">VS</text>
+        <!-- Bottom question -->
+        <rect x="60" y="196" width="280" height="52" rx="12" fill="var(--darker)" stroke="rgba(167,139,250,0.3)"/>
+        <text x="200" y="220" text-anchor="middle" fill="var(--vl)" font-size="13" font-family="Space Grotesk" font-weight="700">How do we give machines</text>
+        <text x="200" y="238" text-anchor="middle" fill="var(--gl)" font-size="13" font-family="Space Grotesk" font-weight="700">an understanding of meaning?</text>
+        <!-- Arrow -->
+        <line x1="200" y1="169" x2="200" y2="196" stroke="rgba(167,139,250,0.4)" stroke-width="1.5" stroke-dasharray="4"/>
+        <polygon points="200,196 194,184 206,184" fill="var(--vl)"/>
+        <!-- Answer -->
+        <rect x="60" y="264" width="280" height="52" rx="12" fill="rgba(124,58,237,0.2)" stroke="rgba(167,139,250,0.5)"/>
+        <text x="200" y="288" text-anchor="middle" fill="var(--white)" font-size="13" font-family="Space Grotesk" font-weight="700">Convert language into</text>
+        <text x="200" y="306" text-anchor="middle" fill="var(--vl)" font-size="13" font-family="Space Grotesk" font-weight="800">numbers that preserve meaning</text>
+        <line x1="200" y1="248" x2="200" y2="264" stroke="rgba(167,139,250,0.4)" stroke-width="1.5" stroke-dasharray="4"/>
+        <polygon points="200,264 194,252 206,252" fill="var(--vl)"/>
+      </svg>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════
+     SLIDE 3 — A MAP OF MEANING
+══════════════════════════════════════ -->
+<div class="slide" id="s3">
+  <div class="slide-num">03 / 11</div>
+  <div class="two-col">
+    <div class="text-col">
+      <div class="eyebrow">Building a Map of Meaning</div>
+      <h2>Distance = <em>similarity</em></h2>
+      <p class="body">On a real map, Mumbai is close to Pune. Distance is meaningful. Now imagine a map of <strong>ideas</strong>.</p>
+      <p class="body">On this map, Dog is close to Cat. King is close to Queen. Programming is close to Software Engineering. The closer two concepts, the more related they are.</p>
+      <p class="body">Every word gets <strong>coordinates</strong> — just like GPS. Those coordinates are its embedding.</p>
+      <div class="insight"><p><strong>Meaning becomes geometry.</strong> The actual numbers don't matter — the relationships between them do.</p></div>
+    </div>
+    <div>
+      <svg viewBox="0 0 420 340" width="100%" height="340">
+        <!-- axes -->
+        <line x1="40" y1="300" x2="400" y2="300" stroke="rgba(255,255,255,0.1)" stroke-width="1.5"/>
+        <line x1="40" y1="300" x2="40" y2="20" stroke="rgba(255,255,255,0.1)" stroke-width="1.5"/>
+        <text x="410" y="304" fill="var(--muted)" font-size="11" font-family="Inter">→</text>
+        <text x="34" y="16" fill="var(--muted)" font-size="11" font-family="Inter">↑</text>
+        <!-- Animals cluster -->
+        <circle cx="310" cy="70" r="9" fill="var(--vl)" class="fl"/>
+        <text x="324" y="66" fill="var(--vl)" font-size="13" font-family="Space Grotesk" font-weight="700">dog</text>
+        <circle cx="340" cy="100" r="9" fill="var(--vl)" class="fl2"/>
+        <text x="354" y="96" fill="var(--vl)" font-size="13" font-family="Space Grotesk" font-weight="700">cat</text>
+        <circle cx="285" cy="95" r="9" fill="var(--vl)" class="fl3"/>
+        <text x="230" y="91" fill="var(--vl)" font-size="13" font-family="Space Grotesk" font-weight="700">tiger</text>
+        <circle cx="315" cy="87" r="52" fill="none" stroke="rgba(167,139,250,0.2)" stroke-width="1.5" stroke-dasharray="6"/>
+        <text x="315" y="152" text-anchor="middle" fill="rgba(167,139,250,0.5)" font-size="11" font-family="Inter">animals</text>
+        <!-- Royalty cluster -->
+        <circle cx="110" cy="190" r="9" fill="var(--gl)" class="fl2"/>
+        <text x="124" y="186" fill="var(--gl)" font-size="13" font-family="Space Grotesk" font-weight="700">king</text>
+        <circle cx="90" cy="220" r="9" fill="var(--gl)" class="fl3"/>
+        <text x="104" y="216" fill="var(--gl)" font-size="13" font-family="Space Grotesk" font-weight="700">queen</text>
+        <circle cx="138" cy="210" r="9" fill="var(--gl)" class="fl"/>
+        <text x="152" y="206" fill="var(--gl)" font-size="13" font-family="Space Grotesk" font-weight="700">monarch</text>
+        <circle cx="112" cy="207" r="50" fill="none" stroke="rgba(245,158,11,0.2)" stroke-width="1.5" stroke-dasharray="6"/>
+        <text x="112" y="268" text-anchor="middle" fill="rgba(245,158,11,0.5)" font-size="11" font-family="Inter">royalty</text>
+        <!-- Tech cluster -->
+        <circle cx="250" cy="250" r="9" fill="var(--teal)" class="fl3"/>
+        <text x="264" y="246" fill="var(--teal)" font-size="13" font-family="Space Grotesk" font-weight="700">code</text>
+        <circle cx="300" cy="230" r="9" fill="var(--teal)" class="fl"/>
+        <text x="314" y="226" fill="var(--teal)" font-size="13" font-family="Space Grotesk" font-weight="700">software</text>
+        <circle cx="270" cy="240" r="42" fill="none" stroke="rgba(34,211,238,0.2)" stroke-width="1.5" stroke-dasharray="6"/>
+        <text x="270" y="290" text-anchor="middle" fill="rgba(34,211,238,0.4)" font-size="11" font-family="Inter">tech</text>
+        <!-- distance annotation -->
+        <line x1="162" y1="207" x2="263" y2="87" stroke="rgba(255,255,255,0.1)" stroke-width="1" stroke-dasharray="4"/>
+        <text x="215" y="148" fill="rgba(255,255,255,0.25)" font-size="11" font-family="Inter" transform="rotate(-38 215 148)">far apart</text>
+      </svg>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════
+     SLIDE 4 — WHAT IS A VECTOR
+══════════════════════════════════════ -->
+<div class="slide" id="s4">
+  <div class="slide-num">04 / 11</div>
+  <div class="two-col-wide">
+    <div class="text-col">
+      <div class="eyebrow">Vectors</div>
+      <h2>A vector is just a <em>list of numbers</em></h2>
+      <p class="body">That's it. Nothing scary. <code style="background:rgba(167,139,250,0.1);padding:2px 7px;border-radius:4px;font-family:'JetBrains Mono',monospace;font-size:14px;color:var(--vl)">[2, 5, 7]</code> is a vector. So is <code style="background:rgba(167,139,250,0.1);padding:2px 7px;border-radius:4px;font-family:'JetBrains Mono',monospace;font-size:14px;color:var(--vl)">[-1.2, 3.8, 9.4]</code>.</p>
+      <p class="body">Modern AI models use vectors with hundreds or thousands of numbers. Think of them as <strong>coordinates</strong> in a giant mathematical space — coordinates that tell us where a word lives relative to all other words.</p>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:4px">
+        <div class="card" style="text-align:center;padding:16px"><div class="num" style="font-family:'Space Grotesk',sans-serif;font-size:26px;font-weight:800;color:var(--vl)">384</div><div style="font-size:12px;color:var(--muted);margin-top:4px">all-MiniLM-L6-v2</div></div>
+        <div class="card" style="text-align:center;padding:16px"><div class="num" style="font-family:'Space Grotesk',sans-serif;font-size:26px;font-weight:800;color:var(--vl)">768</div><div style="font-size:12px;color:var(--muted);margin-top:4px">bge-base / text-004</div></div>
+        <div class="card" style="text-align:center;padding:16px"><div class="num" style="font-family:'Space Grotesk',sans-serif;font-size:26px;font-weight:800;color:var(--gl)">1536</div><div style="font-size:12px;color:var(--muted);margin-top:4px">text-embedding-3-small</div></div>
+        <div class="card" style="text-align:center;padding:16px"><div class="num" style="font-family:'Space Grotesk',sans-serif;font-size:26px;font-weight:800;color:var(--gl)">3072</div><div style="font-size:12px;color:var(--muted);margin-top:4px">text-embedding-3-large</div></div>
+      </div>
+    </div>
+    <div>
+      <svg viewBox="0 0 380 320" width="100%" height="320">
+        <!-- Word boxes -->
+        <rect x="20" y="20" width="100" height="44" rx="9" fill="var(--card)" stroke="rgba(167,139,250,0.3)"/>
+        <text x="70" y="47" text-anchor="middle" fill="var(--white)" font-size="16" font-family="Space Grotesk" font-weight="700">dog</text>
+        <rect x="140" y="20" width="100" height="44" rx="9" fill="var(--card)" stroke="rgba(245,158,11,0.3)"/>
+        <text x="190" y="47" text-anchor="middle" fill="var(--gl)" font-size="16" font-family="Space Grotesk" font-weight="700">cat</text>
+        <rect x="260" y="20" width="100" height="44" rx="9" fill="var(--card)" stroke="rgba(244,114,182,0.3)"/>
+        <text x="310" y="47" text-anchor="middle" fill="var(--pink)" font-size="16" font-family="Space Grotesk" font-weight="700">king</text>
+        <!-- arrows down -->
+        <line x1="70" y1="64" x2="70" y2="100" stroke="rgba(167,139,250,0.35)" stroke-width="1.5" stroke-dasharray="4"/>
+        <polygon points="70,100 64,88 76,88" fill="var(--vl)"/>
+        <line x1="190" y1="64" x2="190" y2="100" stroke="rgba(245,158,11,0.35)" stroke-width="1.5" stroke-dasharray="4"/>
+        <polygon points="190,100 184,88 196,88" fill="var(--gl)"/>
+        <line x1="310" y1="64" x2="310" y2="100" stroke="rgba(244,114,182,0.35)" stroke-width="1.5" stroke-dasharray="4"/>
+        <polygon points="310,100 304,88 316,88" fill="var(--pink)"/>
+        <!-- vector boxes -->
+        <rect x="10" y="100" width="120" height="130" rx="10" fill="var(--darker)" stroke="rgba(167,139,250,0.3)"/>
+        <text x="70" y="122" text-anchor="middle" fill="var(--muted)" font-size="10" font-family="JetBrains Mono">384-dim</text>
+        <text x="70" y="142" text-anchor="middle" fill="var(--vl)" font-size="12" font-family="JetBrains Mono">0.82</text>
+        <text x="70" y="160" text-anchor="middle" fill="var(--vl)" font-size="12" font-family="JetBrains Mono">-0.14</text>
+        <text x="70" y="178" text-anchor="middle" fill="var(--vl)" font-size="12" font-family="JetBrains Mono">0.93</text>
+        <text x="70" y="196" text-anchor="middle" fill="var(--vl)" font-size="12" font-family="JetBrains Mono">0.07</text>
+        <text x="70" y="214" text-anchor="middle" fill="var(--muted)" font-size="12" font-family="JetBrains Mono">...</text>
+
+        <rect x="130" y="100" width="120" height="130" rx="10" fill="var(--darker)" stroke="rgba(245,158,11,0.3)"/>
+        <text x="190" y="122" text-anchor="middle" fill="var(--muted)" font-size="10" font-family="JetBrains Mono">384-dim</text>
+        <text x="190" y="142" text-anchor="middle" fill="var(--gl)" font-size="12" font-family="JetBrains Mono">0.79</text>
+        <text x="190" y="160" text-anchor="middle" fill="var(--gl)" font-size="12" font-family="JetBrains Mono">-0.11</text>
+        <text x="190" y="178" text-anchor="middle" fill="var(--gl)" font-size="12" font-family="JetBrains Mono">0.91</text>
+        <text x="190" y="196" text-anchor="middle" fill="var(--gl)" font-size="12" font-family="JetBrains Mono">0.10</text>
+        <text x="190" y="214" text-anchor="middle" fill="var(--muted)" font-size="12" font-family="JetBrains Mono">...</text>
+
+        <rect x="250" y="100" width="120" height="130" rx="10" fill="var(--darker)" stroke="rgba(244,114,182,0.3)"/>
+        <text x="310" y="122" text-anchor="middle" fill="var(--muted)" font-size="10" font-family="JetBrains Mono">384-dim</text>
+        <text x="310" y="142" text-anchor="middle" fill="var(--pink)" font-size="12" font-family="JetBrains Mono">0.21</text>
+        <text x="310" y="160" text-anchor="middle" fill="var(--pink)" font-size="12" font-family="JetBrains Mono">0.77</text>
+        <text x="310" y="178" text-anchor="middle" fill="var(--pink)" font-size="12" font-family="JetBrains Mono">-0.32</text>
+        <text x="310" y="196" text-anchor="middle" fill="var(--pink)" font-size="12" font-family="JetBrains Mono">0.68</text>
+        <text x="310" y="214" text-anchor="middle" fill="var(--muted)" font-size="12" font-family="JetBrains Mono">...</text>
+        <!-- similarity callout -->
+        <rect x="10" y="244" width="240" height="36" rx="8" fill="rgba(16,185,129,0.1)" stroke="rgba(16,185,129,0.3)"/>
+        <text x="120" y="267" text-anchor="middle" fill="var(--green)" font-size="13" font-family="Space Grotesk" font-weight="700">dog ≈ cat (similar numbers)</text>
+        <rect x="260" y="244" width="110" height="36" rx="8" fill="rgba(244,114,182,0.08)" stroke="rgba(244,114,182,0.25)"/>
+        <text x="315" y="267" text-anchor="middle" fill="var(--pink)" font-size="13" font-family="Space Grotesk" font-weight="700">king ≠ dog</text>
+      </svg>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════
+     SLIDE 5 — WHAT IS AN EMBEDDING
+══════════════════════════════════════ -->
+<div class="slide" id="s5">
+  <div class="slide-num">05 / 11</div>
+  <div class="two-col">
+    <div class="text-col">
+      <div class="eyebrow">Embeddings</div>
+      <h2>Not all vectors are <em>embeddings</em></h2>
+      <p class="body">I can generate <code style="background:rgba(167,139,250,0.1);padding:2px 7px;border-radius:4px;font-family:'JetBrains Mono',monospace;font-size:14px;color:var(--vl)">[7.3, -4.8, 15.2]</code> right now. That's a vector — but it means nothing.</p>
+      <p class="body">An <strong>embedding</strong> is a vector produced by a <em>trained neural network</em>. The network learned from billions of words — which appear together, which sentences mean similar things, which concepts connect.</p>
+      <p class="body">The result: a vector whose numbers encode <strong>learned meaning</strong>, not randomness.</p>
+      <div class="insight"><p>Think of embeddings as <strong>compressed meaning</strong>. Thousands of words and relationships compressed into a list of numbers that a computer can reason about mathematically.</p></div>
+    </div>
+    <div>
+      <svg viewBox="0 0 400 300" width="100%" height="300">
+        <!-- Input -->
+        <rect x="10" y="118" width="80" height="64" rx="10" fill="var(--card)" stroke="rgba(167,139,250,0.3)"/>
+        <text x="50" y="143" text-anchor="middle" fill="var(--muted)" font-size="11" font-family="Inter">raw text</text>
+        <text x="50" y="162" text-anchor="middle" fill="var(--white)" font-size="13" font-family="Space Grotesk" font-weight="700">"The cat</text>
+        <text x="50" y="176" text-anchor="middle" fill="var(--white)" font-size="13" font-family="Space Grotesk" font-weight="700">sat"</text>
+        <!-- Arrow -->
+        <polygon points="105,150 94,144 94,156" fill="rgba(167,139,250,0.6)"/>
+        <line x1="90" y1="150" x2="105" y2="150" stroke="rgba(167,139,250,0.6)" stroke-width="2"/>
+        <!-- Neural net box -->
+        <rect x="108" y="62" width="184" height="176" rx="14" fill="var(--darker)" stroke="rgba(167,139,250,0.25)"/>
+        <text x="200" y="88" text-anchor="middle" fill="var(--vl)" font-size="11" font-weight="700" font-family="Space Grotesk" letter-spacing="1">EMBEDDING MODEL</text>
+        <text x="200" y="104" text-anchor="middle" fill="var(--muted)" font-size="10" font-family="Inter">trained on billions of sentences</text>
+        <!-- mini neurons -->
+        <circle cx="148" cy="128" r="9" fill="var(--card)" stroke="rgba(245,158,11,0.5)"/>
+        <circle cx="148" cy="152" r="9" fill="var(--card)" stroke="rgba(245,158,11,0.5)"/>
+        <circle cx="148" cy="176" r="9" fill="var(--card)" stroke="rgba(245,158,11,0.5)"/>
+        <circle cx="148" cy="200" r="9" fill="var(--card)" stroke="rgba(245,158,11,0.5)"/>
+        <circle cx="200" cy="116" r="9" fill="var(--card)" stroke="rgba(245,158,11,0.5)"/>
+        <circle cx="200" cy="140" r="9" fill="var(--card)" stroke="rgba(245,158,11,0.5)"/>
+        <circle cx="200" cy="164" r="9" fill="var(--card)" stroke="rgba(245,158,11,0.5)"/>
+        <circle cx="200" cy="188" r="9" fill="var(--card)" stroke="rgba(245,158,11,0.5)"/>
+        <circle cx="200" cy="212" r="9" fill="var(--card)" stroke="rgba(245,158,11,0.5)"/>
+        <circle cx="252" cy="128" r="9" fill="var(--card)" stroke="rgba(245,158,11,0.5)"/>
+        <circle cx="252" cy="152" r="9" fill="var(--card)" stroke="rgba(245,158,11,0.5)"/>
+        <circle cx="252" cy="176" r="9" fill="var(--card)" stroke="rgba(245,158,11,0.5)"/>
+        <circle cx="252" cy="200" r="9" fill="var(--card)" stroke="rgba(245,158,11,0.5)"/>
+        <!-- connections sample -->
+        <line x1="157" y1="128" x2="191" y2="116" stroke="rgba(245,158,11,0.12)"/>
+        <line x1="157" y1="128" x2="191" y2="140" stroke="rgba(245,158,11,0.12)"/>
+        <line x1="157" y1="152" x2="191" y2="140" stroke="rgba(245,158,11,0.12)"/>
+        <line x1="157" y1="152" x2="191" y2="164" stroke="rgba(245,158,11,0.12)"/>
+        <line x1="157" y1="176" x2="191" y2="164" stroke="rgba(245,158,11,0.12)"/>
+        <line x1="157" y1="176" x2="191" y2="188" stroke="rgba(245,158,11,0.12)"/>
+        <line x1="209" y1="140" x2="243" y2="128" stroke="rgba(167,139,250,0.12)"/>
+        <line x1="209" y1="140" x2="243" y2="152" stroke="rgba(167,139,250,0.12)"/>
+        <line x1="209" y1="164" x2="243" y2="152" stroke="rgba(167,139,250,0.12)"/>
+        <line x1="209" y1="164" x2="243" y2="176" stroke="rgba(167,139,250,0.12)"/>
+        <!-- Arrow out -->
+        <polygon points="307,150 296,144 296,156" fill="rgba(167,139,250,0.6)"/>
+        <line x1="292" y1="150" x2="307" y2="150" stroke="rgba(167,139,250,0.6)" stroke-width="2"/>
+        <!-- Output vector -->
+        <rect x="310" y="96" width="80" height="108" rx="10" fill="var(--darker)" stroke="rgba(16,185,129,0.45)"/>
+        <text x="350" y="116" text-anchor="middle" fill="var(--muted)" font-size="9" font-family="JetBrains Mono">384-dim</text>
+        <text x="350" y="134" text-anchor="middle" fill="var(--green)" font-size="11" font-family="JetBrains Mono">0.84</text>
+        <text x="350" y="150" text-anchor="middle" fill="var(--green)" font-size="11" font-family="JetBrains Mono">-0.21</text>
+        <text x="350" y="166" text-anchor="middle" fill="var(--green)" font-size="11" font-family="JetBrains Mono">0.67</text>
+        <text x="350" y="182" text-anchor="middle" fill="var(--green)" font-size="11" font-family="JetBrains Mono">0.12</text>
+        <text x="350" y="198" text-anchor="middle" fill="var(--muted)" font-size="11" font-family="JetBrains Mono">...</text>
+        <text x="350" y="272" text-anchor="middle" fill="var(--green)" font-size="11" font-family="Space Grotesk" font-weight="600">embedding ✓</text>
+      </svg>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════
+     SLIDE 6 — HOW MODELS LEARN MEANING
+══════════════════════════════════════ -->
+<div class="slide" id="s6">
+  <div class="slide-num">06 / 11</div>
+  <div class="two-col">
+    <div class="text-col">
+      <div class="eyebrow">How Models Learn</div>
+      <h2>Learning meaning from <em>patterns</em></h2>
+      <p class="body">Models don't get programmed with facts. They process enormous text corpora and repeatedly predict missing words — learning which concepts cluster together through pure pattern recognition.</p>
+      <p class="body">Given: <em>"The cat sat on the ____"</em> — the model learns "mat" is far more likely than "airplane". Do this <strong>billions of times</strong> and the model discovers surprisingly rich relationships.</p>
+      <div class="card gold" style="margin-top:4px">
+        <h3 style="font-size:14px;color:var(--gl);margin-bottom:10px">What it discovers without being told</h3>
+        <div style="display:flex;flex-direction:column;gap:8px">
+          <div style="font-size:14px;color:rgba(249,250,251,0.8)">Paris → France &nbsp;=&nbsp; Tokyo → Japan</div>
+          <div style="font-size:14px;color:rgba(249,250,251,0.8)">King → Man &nbsp;≈&nbsp; Queen → Woman</div>
+          <div style="font-size:14px;color:rgba(249,250,251,0.8)">Doctor → Hospital &nbsp;=&nbsp; Teacher → School</div>
+        </div>
+      </div>
+      <div class="insight"><p>These relationships were <strong>never explicitly programmed</strong>. They emerge from statistical patterns in training data. That's what makes embeddings powerful.</p></div>
+    </div>
+    <div>
+      <svg viewBox="0 0 380 320" width="100%" height="320">
+        <!-- Training loop visual -->
+        <rect x="60" y="20" width="260" height="50" rx="12" fill="var(--card)" stroke="rgba(167,139,250,0.25)"/>
+        <text x="190" y="42" text-anchor="middle" fill="var(--muted)" font-size="11" font-family="Space Grotesk" font-weight="700" letter-spacing="1">TRAINING INPUT</text>
+        <text x="190" y="60" text-anchor="middle" fill="var(--white)" font-size="13" font-family="JetBrains Mono">"The cat sat on the ___"</text>
+        <line x1="190" y1="70" x2="190" y2="100" stroke="rgba(167,139,250,0.3)" stroke-width="1.5" stroke-dasharray="4"/>
+        <polygon points="190,100 184,88 196,88" fill="var(--vl)"/>
+        <!-- Model box -->
+        <rect x="80" y="102" width="220" height="52" rx="12" fill="var(--darker)" stroke="rgba(167,139,250,0.3)"/>
+        <text x="190" y="124" text-anchor="middle" fill="var(--vl)" font-size="12" font-family="Space Grotesk" font-weight="700">Neural Network</text>
+        <text x="190" y="142" text-anchor="middle" fill="var(--muted)" font-size="11" font-family="Inter">billions of parameters</text>
+        <line x1="190" y1="154" x2="190" y2="180" stroke="rgba(167,139,250,0.3)" stroke-width="1.5" stroke-dasharray="4"/>
+        <polygon points="190,180 184,168 196,168" fill="var(--vl)"/>
+        <!-- Predictions -->
+        <rect x="60" y="182" width="120" height="36" rx="8" fill="rgba(16,185,129,0.1)" stroke="rgba(16,185,129,0.4)"/>
+        <text x="120" y="205" text-anchor="middle" fill="var(--green)" font-size="14" font-family="Space Grotesk" font-weight="700">mat ✓ (high)</text>
+        <rect x="200" y="182" width="120" height="36" rx="8" fill="rgba(244,114,182,0.08)" stroke="rgba(244,114,182,0.25)"/>
+        <text x="260" y="205" text-anchor="middle" fill="var(--pink)" font-size="14" font-family="Space Grotesk" font-weight="700">airplane ✗ (low)</text>
+        <!-- Feedback -->
+        <text x="190" y="246" text-anchor="middle" fill="var(--muted)" font-size="12" font-family="Inter">× billions of examples</text>
+        <text x="190" y="266" text-anchor="middle" fill="var(--gl)" font-size="13" font-family="Space Grotesk" font-weight="700">= learned meaning</text>
+        <!-- Arrow back (loop) -->
+        <path d="M 340 205 Q 370 200 370 150 Q 370 80 340 70" fill="none" stroke="rgba(167,139,250,0.2)" stroke-width="1.5" stroke-dasharray="4"/>
+        <polygon points="340,70 352,78 338,82" fill="rgba(167,139,250,0.3)"/>
+        <text x="372" y="155" fill="var(--muted)" font-size="10" font-family="Inter" writing-mode="vertical-rl">repeat</text>
+      </svg>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════
+     SLIDE 7 — EMBEDDING MODELS
+══════════════════════════════════════ -->
+<div class="slide" id="s7">
+  <div class="slide-num">07 / 11</div>
+  <div style="width:100%;max-width:1080px">
+    <div style="text-align:center;margin-bottom:32px">
+      <div class="eyebrow" style="justify-content:center">Embedding Model Families</div>
+      <h2>Pick the right <em>engine</em> for the job</h2>
+      <p class="body" style="margin:10px auto 0;text-align:center">Most engineers don't train from scratch — they use pretrained models. Here's the landscape:</p>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:16px">
+      <div class="card" style="padding:22px 24px">
+        <div style="font-size:24px;margin-bottom:10px">🏭</div>
+        <div style="font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:16px;color:var(--vl);margin-bottom:6px">OpenAI</div>
+        <div style="font-size:13px;color:var(--muted2);line-height:1.6;margin-bottom:10px">text-embedding-3-small (1536d)<br>text-embedding-3-large (3072d)<br>Best quality. Paid API.</div>
+        <span class="tag g" style="font-size:10px">PRODUCTION</span>
+      </div>
+      <div class="card green" style="padding:22px 24px">
+        <div style="font-size:24px;margin-bottom:10px">🆓</div>
+        <div style="font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:16px;color:var(--green);margin-bottom:6px">Sentence Transformers</div>
+        <div style="font-size:13px;color:var(--muted2);line-height:1.6;margin-bottom:10px">all-MiniLM-L6-v2 (384d)<br>Runs locally. Free. Fast.<br>Perfect for learning.</div>
+        <span class="tag gr" style="font-size:10px">START HERE</span>
+      </div>
+      <div class="card" style="padding:22px 24px">
+        <div style="font-size:24px;margin-bottom:10px">🏆</div>
+        <div style="font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:16px;color:var(--teal);margin-bottom:6px">BGE / BAAI</div>
+        <div style="font-size:13px;color:var(--muted2);line-height:1.6;margin-bottom:10px">bge-large-en-v1.5 (1024d)<br>Top MTEB benchmark.<br>Best open-source quality.</div>
+        <span class="tag t" style="font-size:10px">OPEN SOURCE</span>
+      </div>
+      <div class="card" style="padding:22px 24px">
+        <div style="font-size:24px;margin-bottom:10px">💎</div>
+        <div style="font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:16px;color:var(--pink);margin-bottom:6px">Cohere</div>
+        <div style="font-size:13px;color:var(--muted2);line-height:1.6;margin-bottom:10px">embed-english-v3.0 (1024d)<br>Strong retrieval performance.<br>Multilingual variant available.</div>
+        <span class="tag p" style="font-size:10px">PAID API</span>
+      </div>
+      <div class="card" style="padding:22px 24px">
+        <div style="font-size:24px;margin-bottom:10px">🔵</div>
+        <div style="font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:16px;color:var(--gl);margin-bottom:6px">Google</div>
+        <div style="font-size:13px;color:var(--muted2);line-height:1.6;margin-bottom:10px">text-embedding-004 (768d)<br>Gemini API / Vertex AI.<br>Google ecosystem fit.</div>
+        <span class="tag g" style="font-size:10px">PAID API</span>
+      </div>
+      <div class="card" style="padding:22px 24px;background:rgba(124,58,237,0.1);border-color:rgba(124,58,237,0.4)">
+        <div style="font-size:24px;margin-bottom:10px">💡</div>
+        <div style="font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:16px;color:var(--vl);margin-bottom:6px">My recommendation</div>
+        <div style="font-size:13px;color:rgba(249,250,251,0.8);line-height:1.7">Learning → <strong style="color:var(--green)">all-MiniLM-L6-v2</strong><br>Production → <strong style="color:var(--gl)">text-embedding-3-small</strong><br>Best OSS → <strong style="color:var(--teal)">bge-large-en-v1.5</strong></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════
+     SLIDE 8 — COSINE SIMILARITY
+══════════════════════════════════════ -->
+<div class="slide" id="s8">
+  <div class="slide-num">08 / 11</div>
+  <div class="two-col">
+    <div class="text-col">
+      <div class="eyebrow">Similarity Search</div>
+      <h2>Comparing meaning with <em>cosine similarity</em></h2>
+      <p class="body">Now every word, sentence, and document is a vector. How do we find which ones are similar?</p>
+      <p class="body">Cosine similarity measures the <strong>angle</strong> between two vectors — not their size. Two sentences can be different lengths but mean the same thing. They'll point in the same direction.</p>
+      <div style="background:var(--darker);border:1px solid rgba(34,211,238,0.25);border-radius:12px;padding:18px 22px;margin-top:4px;text-align:center">
+        <div style="font-family:'Space Grotesk',sans-serif;font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--teal);margin-bottom:8px">Formula</div>
+        <div style="font-family:'JetBrains Mono',monospace;font-size:20px;color:var(--white)">cos(θ) = (A · B) / (‖A‖ × ‖B‖)</div>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:4px">
+        <div style="text-align:center;padding:12px 8px;background:rgba(16,185,129,0.1);border:1px solid rgba(16,185,129,0.25);border-radius:10px"><div style="font-family:'Space Grotesk',sans-serif;font-weight:800;font-size:18px;color:var(--green)">1.0</div><div style="font-size:11px;color:var(--muted);margin-top:4px">identical</div></div>
+        <div style="text-align:center;padding:12px 8px;background:rgba(167,139,250,0.08);border:1px solid rgba(167,139,250,0.2);border-radius:10px"><div style="font-family:'Space Grotesk',sans-serif;font-weight:800;font-size:18px;color:var(--vl)">0.8</div><div style="font-size:11px;color:var(--muted);margin-top:4px">strongly related</div></div>
+        <div style="text-align:center;padding:12px 8px;background:rgba(245,158,11,0.08);border:1px solid rgba(245,158,11,0.2);border-radius:10px"><div style="font-family:'Space Grotesk',sans-serif;font-weight:800;font-size:18px;color:var(--gl)">0.5</div><div style="font-size:11px;color:var(--muted);margin-top:4px">somewhat related</div></div>
+        <div style="text-align:center;padding:12px 8px;background:rgba(244,114,182,0.08);border:1px solid rgba(244,114,182,0.2);border-radius:10px"><div style="font-family:'Space Grotesk',sans-serif;font-weight:800;font-size:18px;color:var(--pink)">0.0</div><div style="font-size:11px;color:var(--muted);margin-top:4px">unrelated</div></div>
+      </div>
+    </div>
+    <div>
+      <svg viewBox="0 0 380 300" width="100%" height="300">
+        <circle cx="60" cy="260" r="5" fill="var(--white)"/>
+        <text x="45" y="278" fill="var(--muted)" font-size="11" font-family="Inter">origin</text>
+        <!-- Query -->
+        <line x1="60" y1="260" x2="280" y2="60" stroke="var(--vl)" stroke-width="2.5" marker-end="url(#arr-v)"/>
+        <text x="288" y="56" fill="var(--vl)" font-size="13" font-family="Space Grotesk" font-weight="700">Query</text>
+        <text x="288" y="72" fill="var(--muted)" font-size="11" font-family="Inter">"fast cars"</text>
+        <!-- Similar -->
+        <line x1="60" y1="260" x2="320" y2="90" stroke="var(--green)" stroke-width="2.5" marker-end="url(#arr-g)"/>
+        <text x="328" y="86" fill="var(--green)" font-size="13" font-family="Space Grotesk" font-weight="700">Result 1</text>
+        <text x="328" y="102" fill="var(--muted)" font-size="11" font-family="Inter">"speedy vehicles"</text>
+        <!-- Angle small -->
+        <path d="M 238 106 A 72 72 0 0 1 260 82" fill="none" stroke="var(--green)" stroke-width="1.5"/>
+        <text x="255" y="118" fill="var(--green)" font-size="12" font-family="Space Grotesk">θ≈10°</text>
+        <!-- Dissimilar -->
+        <line x1="60" y1="260" x2="90" y2="50" stroke="var(--pink)" stroke-width="2" stroke-dasharray="5" marker-end="url(#arr-p)"/>
+        <text x="40" y="44" fill="var(--pink)" font-size="13" font-family="Space Grotesk" font-weight="700">Unrelated</text>
+        <text x="30" y="60" fill="var(--muted)" font-size="11" font-family="Inter">"banana bread"</text>
+        <!-- Angle large -->
+        <path d="M 76 214 A 60 60 0 0 1 67 190" fill="none" stroke="var(--pink)" stroke-width="1.5"/>
+        <text x="58" y="200" fill="var(--pink)" font-size="12" font-family="Space Grotesk">θ≈75°</text>
+        <defs>
+          <marker id="arr-v" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L0,6 L8,3 z" fill="var(--vl)"/></marker>
+          <marker id="arr-g" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L0,6 L8,3 z" fill="var(--green)"/></marker>
+          <marker id="arr-p" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L0,6 L8,3 z" fill="var(--pink)"/></marker>
+        </defs>
+      </svg>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════
+     SLIDE 9 — SEMANTIC SEARCH
+══════════════════════════════════════ -->
+<div class="slide" id="s9">
+  <div class="slide-num">09 / 11</div>
+  <div class="two-col">
+    <div class="text-col">
+      <div class="eyebrow">Semantic Search</div>
+      <h2>Match <em>meaning</em>, not words</h2>
+      <p class="body">You search: <em>"How do I reset my password?"</em><br>The document says: <em>"Account credential recovery process."</em></p>
+      <p class="body">Traditional keyword search fails — none of the words match. Semantic search succeeds because both query and document embed to <strong>similar vectors</strong>. They express the same intent.</p>
+      <p class="body">This is why modern AI-powered search feels so much smarter than old-school search. <strong>It's matching meaning, not characters.</strong></p>
+      <div class="insight"><p>The embedding model doesn't care about exact wording. It cares about the <em>direction</em> the text points in vector space — and similar intents point in similar directions.</p></div>
+    </div>
+    <div>
+      <svg viewBox="0 0 400 320" width="100%" height="320">
+        <!-- Query box -->
+        <rect x="80" y="12" width="240" height="44" rx="10" fill="var(--card)" stroke="rgba(167,139,250,0.4)"/>
+        <text x="200" y="32" text-anchor="middle" fill="var(--muted)" font-size="10" font-family="Space Grotesk" font-weight="700" letter-spacing="1">QUERY</text>
+        <text x="200" y="48" text-anchor="middle" fill="var(--white)" font-size="13" font-family="Space Grotesk" font-weight="600">"How do I reset my password?"</text>
+        <!-- Column headers -->
+        <text x="95" y="84" text-anchor="middle" fill="var(--pink)" font-size="11" font-family="Space Grotesk" font-weight="700" letter-spacing="1.5">KEYWORD</text>
+        <text x="305" y="84" text-anchor="middle" fill="var(--vl)" font-size="11" font-family="Space Grotesk" font-weight="700" letter-spacing="1.5">SEMANTIC</text>
+        <line x1="200" y1="70" x2="200" y2="310" stroke="rgba(255,255,255,0.07)"/>
+        <!-- Results -->
+        <rect x="10" y="92" width="175" height="32" rx="7" fill="rgba(16,185,129,0.08)" stroke="rgba(16,185,129,0.35)"/>
+        <text x="20" y="113" fill="var(--green)" font-size="12" font-family="Inter">✓ reset my password guide</text>
+        <rect x="10" y="130" width="175" height="32" rx="7" fill="rgba(244,114,182,0.07)" stroke="rgba(244,114,182,0.2)"/>
+        <text x="20" y="151" fill="var(--pink)" font-size="12" font-family="Inter">✗ credential recovery</text>
+        <rect x="10" y="168" width="175" height="32" rx="7" fill="rgba(244,114,182,0.07)" stroke="rgba(244,114,182,0.2)"/>
+        <text x="20" y="189" fill="var(--pink)" font-size="12" font-family="Inter">✗ change account password</text>
+        <rect x="10" y="206" width="175" height="32" rx="7" fill="rgba(244,114,182,0.07)" stroke="rgba(244,114,182,0.2)"/>
+        <text x="20" y="227" fill="var(--pink)" font-size="12" font-family="Inter">✗ forgot password help</text>
+        <rect x="10" y="244" width="175" height="32" rx="7" fill="rgba(244,114,182,0.07)" stroke="rgba(244,114,182,0.2)"/>
+        <text x="20" y="265" fill="var(--pink)" font-size="12" font-family="Inter">✗ login issues support</text>
+        <text x="97" y="292" text-anchor="middle" fill="var(--pink)" font-size="12" font-family="Space Grotesk" font-weight="700">1 / 5 found</text>
+
+        <rect x="215" y="92" width="175" height="32" rx="7" fill="rgba(16,185,129,0.08)" stroke="rgba(16,185,129,0.35)"/>
+        <text x="225" y="113" fill="var(--green)" font-size="12" font-family="Inter">✓ reset my password guide</text>
+        <rect x="215" y="130" width="175" height="32" rx="7" fill="rgba(16,185,129,0.08)" stroke="rgba(16,185,129,0.35)"/>
+        <text x="225" y="151" fill="var(--green)" font-size="12" font-family="Inter">✓ credential recovery</text>
+        <rect x="215" y="168" width="175" height="32" rx="7" fill="rgba(16,185,129,0.08)" stroke="rgba(16,185,129,0.35)"/>
+        <text x="225" y="189" fill="var(--green)" font-size="12" font-family="Inter">✓ change account password</text>
+        <rect x="215" y="206" width="175" height="32" rx="7" fill="rgba(16,185,129,0.08)" stroke="rgba(16,185,129,0.35)"/>
+        <text x="225" y="227" fill="var(--green)" font-size="12" font-family="Inter">✓ forgot password help</text>
+        <rect x="215" y="244" width="175" height="32" rx="7" fill="rgba(16,185,129,0.08)" stroke="rgba(16,185,129,0.35)"/>
+        <text x="225" y="265" fill="var(--green)" font-size="12" font-family="Inter">✓ login issues support</text>
+        <text x="302" y="292" text-anchor="middle" fill="var(--green)" font-size="12" font-family="Space Grotesk" font-weight="700">5 / 5 found</text>
+      </svg>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════
+     SLIDE 10 — THE RAG PIPELINE
+══════════════════════════════════════ -->
+<div class="slide" id="s10">
+  <div class="slide-num">10 / 11</div>
+  <div style="width:100%;max-width:1080px">
+    <div style="margin-bottom:28px">
+      <div class="eyebrow">The Complete Pipeline</div>
+      <h2>Retrieval. Augmentation. <em>Generation.</em></h2>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr auto 1fr auto 1fr auto 1fr auto 1fr;gap:0;align-items:center">
+      <!-- Step 1 -->
+      <div class="pipe-step" style="flex-direction:column;text-align:center;padding:18px 14px">
+        <div class="pipe-icon">📄</div>
+        <div class="pipe-text">Documents</div>
+        <div class="pipe-sub">PDFs, articles, knowledge bases</div>
+      </div>
+      <div class="pipe-arrow">→</div>
+      <!-- Step 2 -->
+      <div class="pipe-step" style="flex-direction:column;text-align:center;padding:18px 14px;border-color:rgba(245,158,11,0.3)">
+        <div class="pipe-icon">✂️</div>
+        <div class="pipe-text">Chunk</div>
+        <div class="pipe-sub">Split into smaller pieces</div>
+      </div>
+      <div class="pipe-arrow">→</div>
+      <!-- Step 3 -->
+      <div class="pipe-step" style="flex-direction:column;text-align:center;padding:18px 14px;border-color:rgba(167,139,250,0.4)">
+        <div class="pipe-icon">🧠</div>
+        <div class="pipe-text">Embed</div>
+        <div class="pipe-sub">Convert to vectors</div>
+      </div>
+      <div class="pipe-arrow">→</div>
+      <!-- Step 4 -->
+      <div class="pipe-step" style="flex-direction:column;text-align:center;padding:18px 14px;border-color:rgba(16,185,129,0.3)">
+        <div class="pipe-icon">🗄️</div>
+        <div class="pipe-text">Vector DB</div>
+        <div class="pipe-sub">Chroma · Pinecone · pgvector</div>
+      </div>
+      <div class="pipe-arrow" style="color:var(--muted)">···</div>
+      <!-- Step 5 (query) -->
+      <div class="pipe-step" style="flex-direction:column;text-align:center;padding:18px 14px;border-color:rgba(244,114,182,0.3)">
+        <div class="pipe-icon">💬</div>
+        <div class="pipe-text">User query</div>
+        <div class="pipe-sub">→ embed → ANN search</div>
+      </div>
+    </div>
+    <!-- Bottom row -->
+    <div style="display:flex;justify-content:flex-end;margin-top:14px;gap:0;align-items:center">
+      <div class="pipe-step" style="flex-direction:column;text-align:center;padding:18px 14px;border-color:rgba(34,211,238,0.3);max-width:180px">
+        <div class="pipe-icon">🎯</div>
+        <div class="pipe-text">Top-K chunks</div>
+        <div class="pipe-sub">Most similar results</div>
+      </div>
+      <div class="pipe-arrow">→</div>
+      <div class="pipe-step" style="flex-direction:column;text-align:center;padding:18px 14px;border-color:rgba(245,158,11,0.35);max-width:180px">
+        <div class="pipe-icon">🤖</div>
+        <div class="pipe-text">LLM</div>
+        <div class="pipe-sub">chunks + query → answer</div>
+      </div>
+      <div class="pipe-arrow">→</div>
+      <div class="pipe-step" style="flex-direction:column;text-align:center;padding:20px 20px;border-color:rgba(167,139,250,0.6);background:rgba(124,58,237,0.15);max-width:160px">
+        <div class="pipe-icon">✨</div>
+        <div class="pipe-text" style="color:var(--vl)">Answer</div>
+        <div class="pipe-sub">grounded in your data</div>
+      </div>
+    </div>
+    <div style="display:flex;gap:20px;margin-top:20px">
+      <div style="background:rgba(167,139,250,0.08);border:1px solid rgba(167,139,250,0.2);border-radius:10px;padding:12px 18px;font-size:13px;color:rgba(249,250,251,0.7);flex:1"><strong style="color:var(--vl)">R</strong>etrieval — find the most relevant chunks</div>
+      <div style="background:rgba(245,158,11,0.08);border:1px solid rgba(245,158,11,0.2);border-radius:10px;padding:12px 18px;font-size:13px;color:rgba(249,250,251,0.7);flex:1"><strong style="color:var(--gl)">A</strong>ugmentation — add chunks to the prompt</div>
+      <div style="background:rgba(16,185,129,0.08);border:1px solid rgba(16,185,129,0.2);border-radius:10px;padding:12px 18px;font-size:13px;color:rgba(249,250,251,0.7);flex:1"><strong style="color:var(--green)">G</strong>eneration — LLM produces the final answer</div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════
+     SLIDE 11 — KEY TAKEAWAYS
+══════════════════════════════════════ -->
+<div class="slide" id="s11">
+  <div class="slide-num">11 / 11</div>
+  <div style="width:100%;max-width:1000px">
+    <div style="text-align:center;margin-bottom:36px">
+      <div class="eyebrow" style="justify-content:center">Key Takeaways + Interview Prep</div>
+      <h2>The three things to <em>remember</em></h2>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:20px;margin-bottom:32px">
+      <div class="card" style="padding:28px 24px">
+        <div style="font-size:32px;margin-bottom:12px">1️⃣</div>
+        <h3 style="font-size:15px;color:var(--white);margin-bottom:8px">Machines understand numbers, not words</h3>
+        <p style="font-size:14px;color:rgba(249,250,251,0.65);line-height:1.6">The whole field of NLP is built on finding ways to convert language into math.</p>
+      </div>
+      <div class="card gold" style="padding:28px 24px">
+        <div style="font-size:32px;margin-bottom:12px">2️⃣</div>
+        <h3 style="font-size:15px;color:var(--white);margin-bottom:8px">Embeddings are learned, meaningful vectors</h3>
+        <p style="font-size:14px;color:rgba(249,250,251,0.65);line-height:1.6">Neural networks compress semantic relationships into dense numerical representations.</p>
+      </div>
+      <div class="card green" style="padding:28px 24px">
+        <div style="font-size:32px;margin-bottom:12px">3️⃣</div>
+        <h3 style="font-size:15px;color:var(--white);margin-bottom:8px">Similar meaning → similar vectors → close in space</h3>
+        <p style="font-size:14px;color:rgba(249,250,251,0.65);line-height:1.6">Semantic search finds meaning. This powers RAG, AI search, recommendations, and more.</p>
+      </div>
+    </div>
+    <!-- Interview Q section -->
+    <div style="background:var(--darker);border:1px solid rgba(167,139,250,0.25);border-radius:14px;padding:22px 26px">
+      <div style="font-family:'Space Grotesk',sans-serif;font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--vl);margin-bottom:16px">🎯 Engineer Notes — If asked in an interview</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px">
+        <div>
+          <div style="font-size:13px;color:var(--muted);margin-bottom:6px;font-family:'Space Grotesk',sans-serif;font-weight:600">What is an embedding?</div>
+          <div style="font-size:13px;color:rgba(249,250,251,0.8);line-height:1.65">A dense vector representation where semantically similar items are located close together in vector space.</div>
+        </div>
+        <div>
+          <div style="font-size:13px;color:var(--muted);margin-bottom:6px;font-family:'Space Grotesk',sans-serif;font-weight:600">Why cosine similarity?</div>
+          <div style="font-size:13px;color:rgba(249,250,251,0.8);line-height:1.65">Measures directional similarity while being insensitive to vector magnitude — correct signal for text of varying length.</div>
+        </div>
+        <div>
+          <div style="font-size:13px;color:var(--muted);margin-bottom:6px;font-family:'Space Grotesk',sans-serif;font-weight:600">Where are embeddings used?</div>
+          <div style="font-size:13px;color:rgba(249,250,251,0.8);line-height:1.65">Semantic search, RAG pipelines, recommendation systems, clustering, classification, document Q&A.</div>
+        </div>
+      </div>
+    </div>
+    <div style="text-align:center;margin-top:22px;font-size:14px;color:var(--muted)">
+      Day 2 → <span style="color:var(--vl);font-weight:600">Vector Databases</span> — storing millions of embeddings and querying them at scale
+    </div>
+  </div>
+</div>
+
+</div><!-- /deck -->
+
+<div id="nav">
+  <button class="nb" id="prev" onclick="go(-1)">← Prev</button>
+  <span id="ctr">1 / 11</span>
+  <button class="nb" id="next" onclick="go(1)">Next →</button>
+</div>
+
+<script>
+const slides = document.querySelectorAll('.slide');
+const total = slides.length;
+let cur = 0;
+function go(dir) {
+  const n = cur + dir;
+  if (n < 0 || n >= total) return;
+  slides[cur].classList.remove('active');
+  cur = n;
+  slides[cur].classList.add('active');
+  document.getElementById('ctr').textContent = `${cur+1} / ${total}`;
+  document.getElementById('progress').style.width = `${((cur+1)/total)*100}%`;
+  document.getElementById('prev').disabled = cur === 0;
+  document.getElementById('next').disabled = cur === total-1;
+}
+document.addEventListener('keydown', e => {
+  if (e.key==='ArrowRight'||e.key==='ArrowDown') go(1);
+  if (e.key==='ArrowLeft'||e.key==='ArrowUp') go(-1);
+});
+document.getElementById('prev').disabled = true;
+document.getElementById('progress').style.width = `${(1/total)*100}%`;
+</script>
+</body>
+</html>

@@ -1,0 +1,899 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Transformers — WiseLabs Slides</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --bg: #0D1B2A; --card: #1E3A5F; --dark: #070F1A;
+  --vl: #a78bfa; --violet: #7C3AED;
+  --gl: #fcd34d; --gold: #F59E0B;
+  --white: #F9FAFB; --muted: #6B7280; --muted2: #9CA3AF;
+  --green: #10B981; --pink: #F472B6; --teal: #22d3ee;
+}
+html, body { width:100%; background:var(--bg); color:var(--white); font-family:'Inter',sans-serif; }
+#progress { position:fixed; top:0; left:0; height:3px; background:linear-gradient(90deg,var(--violet),var(--vl)); transition:width 0.4s ease; z-index:200; box-shadow:0 0 8px var(--vl); }
+@media (min-width:768px) {
+  html, body { height:100%; overflow:hidden; }
+  #slides { width:100%; height:100%; position:relative; }
+  .slide { position:absolute; inset:0; display:flex; flex-direction:column; justify-content:center; align-items:center; padding:56px 80px 80px; opacity:0; pointer-events:none; transition:opacity 0.4s ease; }
+  .slide.active { opacity:1; pointer-events:all; }
+  #nav { position:fixed; bottom:24px; left:50%; transform:translateX(-50%); display:flex; gap:12px; align-items:center; z-index:100; }
+  .slide-num { position:absolute; top:24px; right:32px; font-family:'Space Grotesk',sans-serif; font-size:11px; font-weight:700; letter-spacing:2px; color:var(--muted); }
+  .mobile-label { display:none; }
+  .svg-hide { display:contents; }
+}
+@media (max-width:767px) {
+  body { overflow-x:hidden; overflow-y:auto; }
+  #slides { display:flex; flex-direction:column; gap:0; }
+  .slide { display:flex; flex-direction:column; gap:18px; padding:28px 20px 36px; opacity:1; pointer-events:all; border-bottom:1px solid rgba(167,139,250,0.1); min-height:auto; position:static; }
+  .slide:last-child { border-bottom:none; }
+  #nav { display:none; }
+  #progress { display:none; }
+  .slide-num { display:none; }
+  .mobile-label { font-family:'Space Grotesk',sans-serif; font-size:10px; font-weight:700; letter-spacing:2px; text-transform:uppercase; color:var(--muted); }
+  .two-col { display:flex !important; flex-direction:column; gap:20px; width:100%; }
+  .svg-hide { display:none; }
+  .mobile-only { display:block; }
+  .float { animation:none !important; }
+  .two-grid { grid-template-columns:1fr !important; }
+  .three-grid { grid-template-columns:1fr !important; }
+}
+@media (min-width:768px) { .mobile-only { display:none; } }
+.eyebrow { font-family:'Space Grotesk',sans-serif; font-size:11px; font-weight:700; letter-spacing:3px; text-transform:uppercase; color:var(--vl); margin-bottom:10px; display:flex; align-items:center; gap:8px; }
+.eyebrow::before { content:''; display:inline-block; width:16px; height:2px; background:var(--vl); flex-shrink:0; }
+.eyebrow.center { justify-content:center; }
+h1 { font-family:'Space Grotesk',sans-serif; font-size:clamp(28px,5vw,66px); font-weight:800; line-height:1.08; letter-spacing:-2px; }
+h1 em { font-style:normal; color:var(--vl); }
+h1 .gold { color:var(--gl); }
+h2 { font-family:'Space Grotesk',sans-serif; font-size:clamp(22px,3.5vw,44px); font-weight:700; line-height:1.15; letter-spacing:-1px; }
+h2 em { font-style:normal; color:var(--vl); }
+h3 { font-family:'Space Grotesk',sans-serif; font-size:clamp(14px,1.8vw,18px); font-weight:600; color:var(--gl); margin-bottom:6px; }
+p.bp { font-size:clamp(14px,1.6vw,17px); line-height:1.72; color:rgba(249,250,251,0.82); max-width:640px; }
+.two-col { display:grid; grid-template-columns:1fr 1fr; gap:48px; width:100%; max-width:1100px; align-items:center; }
+.text-col { display:flex; flex-direction:column; gap:14px; }
+.center-col { display:flex; flex-direction:column; align-items:center; gap:18px; text-align:center; max-width:960px; width:100%; }
+.card { background:var(--card); border:1px solid rgba(167,139,250,0.18); border-radius:14px; padding:20px 24px; }
+.card.gb { border-color:rgba(245,158,11,0.35); }
+.card.gr { border-color:rgba(16,185,129,0.3); }
+.card.pk { border-color:rgba(244,114,182,0.3); }
+.card.tl { border-color:rgba(34,211,238,0.25); }
+.insight { background:linear-gradient(135deg,rgba(245,158,11,0.14),rgba(245,158,11,0.06)); border:1px solid rgba(245,158,11,0.28); border-radius:12px; padding:14px 18px; }
+.insight::before { content:'\1F4A1 Remember this'; display:block; font-family:'Space Grotesk',sans-serif; font-size:10px; font-weight:700; letter-spacing:2px; text-transform:uppercase; color:var(--gl); margin-bottom:6px; }
+.insight p { font-size:clamp(13px,1.4vw,15px); margin:0; line-height:1.65; color:rgba(249,250,251,0.9); }
+.tag { display:inline-block; font-family:'Space Grotesk',sans-serif; font-size:11px; font-weight:600; padding:4px 11px; border-radius:6px; }
+.tag.v { background:rgba(167,139,250,0.12); border:1px solid rgba(167,139,250,0.3); color:var(--vl); }
+.tag.g { background:rgba(245,158,11,0.1); border:1px solid rgba(245,158,11,0.3); color:var(--gl); }
+.tag.gr { background:rgba(16,185,129,0.1); border:1px solid rgba(16,185,129,0.3); color:var(--green); }
+.tag.pk { background:rgba(244,114,182,0.1); border:1px solid rgba(244,114,182,0.3); color:var(--pink); }
+.formula-box { background:var(--dark); border:1px solid rgba(34,211,238,0.25); border-radius:12px; padding:16px 20px; text-align:center; }
+.formula-label { font-family:'Space Grotesk',sans-serif; font-size:10px; font-weight:700; letter-spacing:2px; text-transform:uppercase; color:var(--teal); margin-bottom:8px; }
+.formula-text { font-family:'Courier New',monospace; font-size:clamp(14px,1.8vw,20px); color:var(--white); margin-bottom:8px; }
+.formula-note { font-size:12px; color:var(--muted); line-height:1.5; }
+.nav-btn { background:rgba(13,27,42,0.9); border:1px solid rgba(167,139,250,0.3); color:var(--vl); font-family:'Space Grotesk',sans-serif; font-size:13px; font-weight:600; padding:9px 22px; border-radius:8px; cursor:pointer; transition:all 0.2s; backdrop-filter:blur(8px); }
+.nav-btn:hover { background:var(--vl); color:var(--bg); }
+.nav-btn:disabled { opacity:0.25; pointer-events:none; }
+#counter { font-family:'Space Grotesk',sans-serif; font-size:12px; color:var(--muted); min-width:48px; text-align:center; }
+.mv { background:var(--card); border:1px solid rgba(167,139,250,0.18); border-radius:12px; padding:16px; }
+.mv-row { display:flex; align-items:flex-start; justify-content:space-between; padding:8px 0; border-bottom:1px solid rgba(255,255,255,0.05); font-size:13px; gap:8px; }
+.mv-row:last-child { border-bottom:none; }
+@keyframes float { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-7px)} }
+.float { animation:float 3s ease-in-out infinite; }
+/* attention demo */
+#attn-demo { width:100%; }
+.tok-row { display:flex; flex-wrap:wrap; gap:8px; margin-bottom:16px; }
+.tok-btn { font-family:'Space Grotesk',sans-serif; font-size:12px; font-weight:600; padding:6px 12px; border-radius:8px; border:1px solid rgba(167,139,250,0.3); background:rgba(167,139,250,0.08); color:var(--vl); cursor:pointer; transition:all 0.2s; }
+.tok-btn:hover, .tok-btn.sel { background:var(--vl); color:var(--dark); border-color:var(--vl); }
+.bar-row { display:flex; align-items:center; gap:10px; margin-bottom:7px; font-size:12px; }
+.bar-label { width:72px; text-align:right; color:var(--muted2); font-family:'Space Grotesk',sans-serif; font-size:11px; }
+.bar-track { flex:1; height:16px; background:rgba(255,255,255,0.06); border-radius:4px; overflow:hidden; position:relative; }
+.bar-fill { height:100%; border-radius:4px; background:linear-gradient(90deg,var(--violet),var(--vl)); transition:width 0.4s ease; }
+.bar-pct { position:absolute; right:6px; top:50%; transform:translateY(-50%); font-size:10px; color:var(--white); font-family:'Space Grotesk',sans-serif; }
+.sent-btns { display:flex; gap:8px; margin-bottom:12px; }
+.sent-btn { font-family:'Space Grotesk',sans-serif; font-size:11px; font-weight:600; padding:5px 10px; border-radius:6px; border:1px solid rgba(167,139,250,0.25); background:transparent; color:var(--muted2); cursor:pointer; transition:all 0.2s; }
+.sent-btn.on { border-color:var(--vl); color:var(--vl); background:rgba(167,139,250,0.1); }
+</style>
+</head>
+<body>
+<div id="progress"></div>
+<div id="slides">
+
+<!-- ===== S1: COVER ===== -->
+<div class="slide active" id="s1">
+  <div class="slide-num">01 / 14</div>
+  <div class="center-col">
+    <div class="mobile-label">Slide 1 of 14</div>
+    <div class="eyebrow center">WiseLabs · AI Engineering · Topic 1</div>
+    <h1>Transformers<br><em>How LLMs Actually</em><br><span class="gold">Read and Think</span></h1>
+    <p class="bp" style="text-align:center;color:rgba(249,250,251,0.6)">Complete architecture deep dive — from tokens to KV cache. MAANG IC4 level, no heavy math required.</p>
+    <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap">
+      <span class="tag v">Self-Attention</span>
+      <span class="tag v">Q · K · V</span>
+      <span class="tag g">Transformer Block</span>
+      <span class="tag g">KV Cache</span>
+      <span class="tag gr">Encoder vs Decoder</span>
+      <span class="tag pk">Causal Masking</span>
+    </div>
+  </div>
+</div>
+
+<!-- ===== S2: WHAT IS A TRANSFORMER ===== -->
+<div class="slide" id="s2">
+  <div class="slide-num">02 / 14</div>
+  <div class="two-col">
+    <div class="text-col">
+      <div class="mobile-label">Slide 2 of 14 — What is a Transformer</div>
+      <div class="eyebrow">The Core Idea</div>
+      <h2>Every token looks at every other <em>token</em></h2>
+      <p class="bp">A Transformer is a neural network that processes sequences. Unlike older models that read left-to-right, a Transformer lets every token attend to every other token simultaneously — updating its meaning based on full context.</p>
+      <div class="insight"><p><strong>Attention = communication between tokens. MLP = computation inside each token.</strong> These two operations alternate in every Transformer block.</p></div>
+    </div>
+    <div class="svg-hide">
+      <svg viewBox="0 0 420 300" style="width:100%;max-height:300px" xmlns="http://www.w3.org/2000/svg">
+        <defs><marker id="arr" markerWidth="6" markerHeight="5" refX="6" refY="2.5" orient="auto"><polygon points="0 0,6 2.5,0 5" fill="#a78bfa"/></marker></defs>
+        <text x="210" y="20" text-anchor="middle" font-family="Space Grotesk" font-size="11" fill="#6B7280" font-weight="600" letter-spacing="2">THE CONTEXT PROBLEM</text>
+        <rect x="10" y="36" width="400" height="52" rx="10" fill="#070F1A" stroke="rgba(167,139,250,0.2)" stroke-width="1"/>
+        <text x="210" y="58" text-anchor="middle" font-family="Space Grotesk" font-size="13" fill="rgba(249,250,251,0.7)">The trophy didn't fit in the suitcase because</text>
+        <text x="112" y="78" text-anchor="middle" font-family="Space Grotesk" font-size="13" fill="#fcd34d" font-weight="700">it</text>
+        <text x="150" y="78" text-anchor="middle" font-family="Space Grotesk" font-size="13" fill="rgba(249,250,251,0.7)">was too</text>
+        <text x="220" y="78" text-anchor="middle" font-family="Space Grotesk" font-size="13" fill="#F472B6" font-weight="700">large.</text>
+        <text x="288" y="78" text-anchor="middle" font-family="Space Grotesk" font-size="13" fill="rgba(249,250,251,0.5)">← "it" = ?</text>
+        <!-- Sentence 1 -->
+        <rect x="10" y="108" width="186" height="78" rx="10" fill="#1E3A5F" stroke="rgba(167,139,250,0.3)" stroke-width="1"/>
+        <text x="103" y="130" text-anchor="middle" font-family="Space Grotesk" font-size="11" fill="#a78bfa" font-weight="700">SENTENCE 1</text>
+        <text x="103" y="150" text-anchor="middle" font-family="Space Grotesk" font-size="12" fill="rgba(249,250,251,0.8)">...because it was too <tspan fill="#F472B6" font-weight="700">large</tspan></text>
+        <text x="103" y="168" text-anchor="middle" font-family="Space Grotesk" font-size="11" fill="#6B7280">"it" attends to →</text>
+        <text x="103" y="184" text-anchor="middle" font-family="Space Grotesk" font-size="13" fill="#fcd34d" font-weight="700">trophy</text>
+        <!-- Sentence 2 -->
+        <rect x="224" y="108" width="186" height="78" rx="10" fill="#1E3A5F" stroke="rgba(34,211,238,0.3)" stroke-width="1"/>
+        <text x="317" y="130" text-anchor="middle" font-family="Space Grotesk" font-size="11" fill="#22d3ee" font-weight="700">SENTENCE 2</text>
+        <text x="317" y="150" text-anchor="middle" font-family="Space Grotesk" font-size="12" fill="rgba(249,250,251,0.8)">...because it was too <tspan fill="#22d3ee" font-weight="700">small</tspan></text>
+        <text x="317" y="168" text-anchor="middle" font-family="Space Grotesk" font-size="11" fill="#6B7280">"it" attends to →</text>
+        <text x="317" y="184" text-anchor="middle" font-family="Space Grotesk" font-size="13" fill="#fcd34d" font-weight="700">suitcase</text>
+        <!-- Bottom note -->
+        <rect x="10" y="204" width="400" height="36" rx="8" fill="rgba(245,158,11,0.08)" stroke="rgba(245,158,11,0.25)" stroke-width="1"/>
+        <text x="210" y="219" text-anchor="middle" font-family="Space Grotesk" font-size="11" fill="#fcd34d" font-weight="600">Same word. Same position. Different context.</text>
+        <text x="210" y="234" text-anchor="middle" font-family="Space Grotesk" font-size="11" fill="rgba(249,250,251,0.5)">Transformer builds context-aware representation of each token.</text>
+        <!-- Also show what Transformers process -->
+        <text x="210" y="268" text-anchor="middle" font-family="Space Grotesk" font-size="10" fill="#6B7280" letter-spacing="1">PROCESSES: TEXT · CODE · IMAGES · AUDIO · TABLES · TOOL CALLS</text>
+      </svg>
+    </div>
+    <div class="mobile-only">
+      <div style="background:#1E3A5F;border:1px solid rgba(167,139,250,0.3);border-radius:12px;padding:14px">
+        <div style="font-family:'Space Grotesk',sans-serif;font-size:11px;font-weight:700;color:#a78bfa;margin-bottom:10px">SAME WORD, DIFFERENT MEANING</div>
+        <div style="padding:10px;background:rgba(0,0,0,0.3);border-radius:8px;margin-bottom:8px">
+          <span style="font-size:13px;color:rgba(249,250,251,0.7)">"...too <b style="color:#F472B6">large</b>" → <b style="color:#fcd34d">it</b> = trophy</span>
+        </div>
+        <div style="padding:10px;background:rgba(0,0,0,0.3);border-radius:8px">
+          <span style="font-size:13px;color:rgba(249,250,251,0.7)">"...too <b style="color:#22d3ee">small</b>" → <b style="color:#fcd34d">it</b> = suitcase</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== S3: WHY REPLACE RNNs ===== -->
+<div class="slide" id="s3">
+  <div class="slide-num">03 / 14</div>
+  <div style="width:100%;max-width:1060px">
+    <div style="margin-bottom:20px">
+      <div class="mobile-label">Slide 3 of 14 — Why Transformers Won</div>
+      <div class="eyebrow">Before Transformers</div>
+      <h2>Why RNNs and LSTMs <em>couldn't scale</em></h2>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;margin-bottom:20px" class="three-grid">
+      <div class="card pk">
+        <h3>Problem 1</h3>
+        <p style="font-size:13px;color:rgba(249,250,251,0.75)">Long-range dependencies. RNNs carry information step-by-step — by step 50, early info has faded. Transformers connect any two tokens directly.</p>
+      </div>
+      <div class="card gb">
+        <h3>Problem 2</h3>
+        <p style="font-size:13px;color:rgba(249,250,251,0.75)">Poor parallelism. RNN token 5 depends on token 4's output — training is sequential. Transformers process all relationships in parallel → scales to GPT-size.</p>
+      </div>
+      <div class="card tl">
+        <h3>Problem 3</h3>
+        <p style="font-size:13px;color:rgba(249,250,251,0.75)">Fixed bottleneck. Seq2seq RNNs compressed the whole input into one hidden vector. Transformers use rich many-to-many token connections.</p>
+      </div>
+    </div>
+    <div class="svg-hide">
+      <svg viewBox="0 0 900 130" style="width:100%;max-height:130px" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <marker id="ra" markerWidth="6" markerHeight="5" refX="6" refY="2.5" orient="auto"><polygon points="0 0,6 2.5,0 5" fill="#6B7280"/></marker>
+          <marker id="ta" markerWidth="6" markerHeight="5" refX="6" refY="2.5" orient="auto"><polygon points="0 0,6 2.5,0 5" fill="#a78bfa"/></marker>
+        </defs>
+        <!-- RNN -->
+        <text x="200" y="18" text-anchor="middle" font-family="Space Grotesk" font-size="11" fill="#6B7280" letter-spacing="2">RNN — sequential</text>
+        <rect x="20" y="26" width="56" height="30" rx="6" fill="#0a1525" stroke="#374151" stroke-width="1.5"/><text x="48" y="46" text-anchor="middle" font-family="Space Grotesk" font-size="12" fill="#9CA3AF">The</text>
+        <rect x="92" y="26" width="56" height="30" rx="6" fill="#0a1525" stroke="#374151" stroke-width="1.5"/><text x="120" y="46" text-anchor="middle" font-family="Space Grotesk" font-size="12" fill="#9CA3AF">trophy</text>
+        <rect x="164" y="26" width="56" height="30" rx="6" fill="#0a1525" stroke="#374151" stroke-width="1.5"/><text x="192" y="46" text-anchor="middle" font-family="Space Grotesk" font-size="12" fill="#9CA3AF">did</text>
+        <rect x="236" y="26" width="56" height="30" rx="6" fill="#0a1525" stroke="#374151" stroke-width="1.5"/><text x="264" y="46" text-anchor="middle" font-family="Space Grotesk" font-size="12" fill="#9CA3AF">not</text>
+        <rect x="308" y="26" width="56" height="30" rx="6" fill="#0a1525" stroke="#374151" stroke-width="1.5"/><text x="336" y="46" text-anchor="middle" font-family="Space Grotesk" font-size="12" fill="#9CA3AF">fit …</text>
+        <line x1="76" y1="41" x2="90" y2="41" stroke="#6B7280" stroke-width="2" marker-end="url(#ra)"/>
+        <line x1="148" y1="41" x2="162" y2="41" stroke="#6B7280" stroke-width="2" marker-end="url(#ra)"/>
+        <line x1="220" y1="41" x2="234" y2="41" stroke="#6B7280" stroke-width="2" marker-end="url(#ra)"/>
+        <line x1="292" y1="41" x2="306" y2="41" stroke="#6B7280" stroke-width="2" marker-end="url(#ra)"/>
+        <rect x="20" y="70" width="344" height="20" rx="5" fill="rgba(244,114,182,0.08)" stroke="rgba(244,114,182,0.3)" stroke-width="1"/>
+        <text x="192" y="84" text-anchor="middle" font-family="Space Grotesk" font-size="10" fill="#F472B6">hidden state must carry ALL past info through every step →</text>
+        <text x="192" y="114" text-anchor="middle" font-family="Space Grotesk" font-size="10" fill="#F472B6">✗ sequential · ✗ long-range loss · ✗ bottleneck</text>
+        <!-- Divider -->
+        <line x1="430" y1="10" x2="430" y2="125" stroke="rgba(107,114,128,0.3)" stroke-width="1" stroke-dasharray="5"/>
+        <!-- Transformer -->
+        <text x="670" y="18" text-anchor="middle" font-family="Space Grotesk" font-size="11" fill="#6B7280" letter-spacing="2">Transformer — parallel</text>
+        <rect x="460" y="26" width="56" height="30" rx="6" fill="#0d2040" stroke="#a78bfa" stroke-width="1.5"/><text x="488" y="46" text-anchor="middle" font-family="Space Grotesk" font-size="12" fill="#a78bfa">The</text>
+        <rect x="532" y="26" width="56" height="30" rx="6" fill="#0d2040" stroke="#a78bfa" stroke-width="1.5"/><text x="560" y="46" text-anchor="middle" font-family="Space Grotesk" font-size="12" fill="#a78bfa">trophy</text>
+        <rect x="604" y="26" width="56" height="30" rx="6" fill="#0d2040" stroke="#a78bfa" stroke-width="1.5"/><text x="632" y="46" text-anchor="middle" font-family="Space Grotesk" font-size="12" fill="#a78bfa">did</text>
+        <rect x="676" y="26" width="56" height="30" rx="6" fill="#0d2040" stroke="#a78bfa" stroke-width="1.5"/><text x="704" y="46" text-anchor="middle" font-family="Space Grotesk" font-size="12" fill="#a78bfa">not</text>
+        <rect x="748" y="26" width="56" height="30" rx="6" fill="#0d2040" stroke="#a78bfa" stroke-width="1.5"/><text x="776" y="46" text-anchor="middle" font-family="Space Grotesk" font-size="12" fill="#a78bfa">fit …</text>
+        <path d="M488 26 Q488 8 560 26" stroke="#a78bfa" stroke-width="1" fill="none" opacity=".35"/>
+        <path d="M488 26 Q488 2 632 26" stroke="#a78bfa" stroke-width="1" fill="none" opacity=".25"/>
+        <path d="M488 26 Q488 -2 704 26" stroke="#a78bfa" stroke-width="1" fill="none" opacity=".18"/>
+        <path d="M488 26 Q488 -6 776 26" stroke="#a78bfa" stroke-width="1" fill="none" opacity=".13"/>
+        <path d="M560 26 Q560 5 632 26" stroke="#a78bfa" stroke-width="1" fill="none" opacity=".3"/>
+        <path d="M560 26 Q560 0 704 26" stroke="#a78bfa" stroke-width="1" fill="none" opacity=".22"/>
+        <path d="M632 26 Q632 5 704 26" stroke="#a78bfa" stroke-width="1" fill="none" opacity=".3"/>
+        <path d="M632 26 Q632 2 776 26" stroke="#a78bfa" stroke-width="1" fill="none" opacity=".2"/>
+        <path d="M704 26 Q704 5 776 26" stroke="#a78bfa" stroke-width="1" fill="none" opacity=".3"/>
+        <text x="630" y="114" text-anchor="middle" font-family="Space Grotesk" font-size="10" fill="#10B981">✓ parallel · ✓ any token sees any other · ✓ no bottleneck</text>
+      </svg>
+    </div>
+  </div>
+</div>
+
+<!-- ===== S4: PIPELINE ===== -->
+<div class="slide" id="s4">
+  <div class="slide-num">04 / 14</div>
+  <div class="two-col">
+    <div class="text-col">
+      <div class="mobile-label">Slide 4 of 14 — Pipeline</div>
+      <div class="eyebrow">End-to-End</div>
+      <h2>Text → tokens → vectors → <em>prediction</em></h2>
+      <p class="bp">The model never processes raw words. Every stage transforms the input into a richer numerical representation until a probability distribution over vocabulary emerges at the end.</p>
+      <div style="display:flex;flex-direction:column;gap:8px;margin-top:4px">
+        <div style="font-size:13px;color:rgba(249,250,251,0.7)"><span style="color:#a78bfa;font-weight:700">Tokenizer</span> — splits text into sub-word units, maps to integer IDs</div>
+        <div style="font-size:13px;color:rgba(249,250,251,0.7)"><span style="color:#fcd34d;font-weight:700">Embedding</span> — each ID → dense vector. Add position info.</div>
+        <div style="font-size:13px;color:rgba(249,250,251,0.7)"><span style="color:#22d3ee;font-weight:700">Blocks × N</span> — attention + MLP refine representations layer by layer</div>
+        <div style="font-size:13px;color:rgba(249,250,251,0.7)"><span style="color:#10B981;font-weight:700">Output head</span> — linear → logits → sampling → next token</div>
+      </div>
+      <div class="insight"><p><strong>1 token ≈ ¾ English word.</strong> 128k token context ≈ 200 pages. GPT-4 vocab ≈ 100,000 tokens.</p></div>
+    </div>
+    <div class="svg-hide">
+      <svg viewBox="0 0 320 400" style="width:100%;max-height:400px" xmlns="http://www.w3.org/2000/svg">
+        <defs><marker id="pa" markerWidth="6" markerHeight="5" refX="6" refY="2.5" orient="auto"><polygon points="0 0,6 2.5,0 5" fill="#a78bfa"/></marker></defs>
+        <rect x="60" y="8" width="200" height="36" rx="8" fill="#0d2040" stroke="#a78bfa" stroke-width="1.5"/>
+        <text x="160" y="24" text-anchor="middle" font-family="Space Grotesk" font-size="11" fill="#a78bfa" font-weight="700">INPUT TEXT</text>
+        <text x="160" y="38" text-anchor="middle" font-family="Space Grotesk" font-size="10" fill="rgba(249,250,251,0.6)">"The capital of France is"</text>
+        <line x1="160" y1="44" x2="160" y2="58" stroke="#a78bfa" stroke-width="1.5" marker-end="url(#pa)"/>
+        <rect x="80" y="58" width="160" height="28" rx="7" fill="#1E3A5F" stroke="rgba(167,139,250,0.25)" stroke-width="1"/>
+        <text x="160" y="77" text-anchor="middle" font-family="Space Grotesk" font-size="11" fill="#a78bfa">Tokenizer</text>
+        <line x1="160" y1="86" x2="160" y2="100" stroke="#a78bfa" stroke-width="1.5" marker-end="url(#pa)"/>
+        <rect x="60" y="100" width="200" height="26" rx="7" fill="#1E3A5F" stroke="rgba(167,139,250,0.15)"/>
+        <text x="160" y="117" text-anchor="middle" font-family="Space Grotesk" font-size="10" fill="rgba(249,250,251,0.6)">[791, 6864, 315, 9822, 374]</text>
+        <line x1="160" y1="126" x2="160" y2="140" stroke="#fcd34d" stroke-width="1.5" marker-end="url(#pa)"/>
+        <rect x="80" y="140" width="160" height="28" rx="7" fill="#1E3A5F" stroke="rgba(252,211,77,0.25)"/>
+        <text x="160" y="159" text-anchor="middle" font-family="Space Grotesk" font-size="11" fill="#fcd34d">Embedding lookup</text>
+        <!-- pos side -->
+        <rect x="254" y="150" width="56" height="20" rx="5" fill="rgba(167,139,250,0.1)" stroke="rgba(167,139,250,0.3)"/>
+        <text x="282" y="163" text-anchor="middle" font-family="Space Grotesk" font-size="9" fill="#a78bfa">+ pos enc</text>
+        <line x1="254" y1="160" x2="242" y2="160" stroke="#a78bfa" stroke-width="1"/>
+        <line x1="160" y1="168" x2="160" y2="182" stroke="#22d3ee" stroke-width="1.5" marker-end="url(#pa)"/>
+        <rect x="30" y="182" width="260" height="80" rx="10" fill="#0d2040" stroke="#22d3ee" stroke-width="1.5"/>
+        <text x="160" y="204" text-anchor="middle" font-family="Space Grotesk" font-size="13" fill="#22d3ee" font-weight="700">Transformer Blocks × N</text>
+        <text x="160" y="222" text-anchor="middle" font-family="Space Grotesk" font-size="10" fill="rgba(249,250,251,0.6)">Self-Attention  +  MLP</text>
+        <text x="160" y="238" text-anchor="middle" font-family="Space Grotesk" font-size="10" fill="rgba(249,250,251,0.6)">+ Residuals  +  Norm</text>
+        <text x="160" y="255" text-anchor="middle" font-family="Space Grotesk" font-size="9" fill="#6B7280">32 layers (GPT-2) · 96 layers (GPT-3)</text>
+        <line x1="160" y1="262" x2="160" y2="276" stroke="#10B981" stroke-width="1.5" marker-end="url(#pa)"/>
+        <rect x="80" y="276" width="160" height="28" rx="7" fill="#1E3A5F" stroke="rgba(16,185,129,0.25)"/>
+        <text x="160" y="295" text-anchor="middle" font-family="Space Grotesk" font-size="11" fill="#10B981">Linear → Logits</text>
+        <line x1="160" y1="304" x2="160" y2="318" stroke="#10B981" stroke-width="1.5" marker-end="url(#pa)"/>
+        <rect x="60" y="318" width="200" height="36" rx="8" fill="#0d2040" stroke="#10B981" stroke-width="2"/>
+        <text x="160" y="334" text-anchor="middle" font-family="Space Grotesk" font-size="11" fill="#10B981" font-weight="700">NEXT TOKEN</text>
+        <text x="160" y="350" text-anchor="middle" font-family="Space Grotesk" font-size="13" fill="#fcd34d" font-weight="700">"Paris"</text>
+      </svg>
+    </div>
+  </div>
+</div>
+
+<!-- ===== S5: TRANSFORMER BLOCK ===== -->
+<div class="slide" id="s5">
+  <div class="slide-num">05 / 14</div>
+  <div class="two-col">
+    <div class="svg-hide">
+      <svg viewBox="0 0 320 480" style="width:100%;max-height:480px" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <marker id="ba" markerWidth="6" markerHeight="5" refX="6" refY="2.5" orient="auto"><polygon points="0 0,6 2.5,0 5" fill="#a78bfa"/></marker>
+          <marker id="bg" markerWidth="6" markerHeight="5" refX="6" refY="2.5" orient="auto"><polygon points="0 0,6 2.5,0 5" fill="#10B981"/></marker>
+          <marker id="bk" markerWidth="6" markerHeight="5" refX="6" refY="2.5" orient="auto"><polygon points="0 0,6 2.5,0 5" fill="#fcd34d"/></marker>
+        </defs>
+        <!-- Block border -->
+        <rect x="20" y="46" width="280" height="390" rx="12" fill="none" stroke="rgba(167,139,250,0.2)" stroke-width="1.5" stroke-dasharray="6"/>
+        <text x="36" y="40" font-family="Space Grotesk" font-size="10" fill="#6B7280" font-weight="600" letter-spacing="1">TRANSFORMER BLOCK × N</text>
+        <!-- Input -->
+        <rect x="90" y="10" width="140" height="34" rx="8" fill="#0d2040" stroke="#a78bfa" stroke-width="1.5"/>
+        <text x="160" y="32" text-anchor="middle" font-family="Space Grotesk" font-size="12" fill="#a78bfa" font-weight="600">Input  x</text>
+        <line x1="160" y1="44" x2="160" y2="62" stroke="#a78bfa" stroke-width="1.5" marker-end="url(#ba)"/>
+        <!-- Norm 1 -->
+        <rect x="100" y="62" width="120" height="28" rx="7" fill="#1E3A5F" stroke="rgba(167,139,250,0.2)"/>
+        <text x="160" y="80" text-anchor="middle" font-family="Space Grotesk" font-size="11" fill="rgba(249,250,251,0.6)">LayerNorm</text>
+        <line x1="160" y1="90" x2="160" y2="108" stroke="#a78bfa" stroke-width="1.5" marker-end="url(#ba)"/>
+        <!-- Skip 1 -->
+        <line x1="60" y1="76" x2="42" y2="76" stroke="#10B981" stroke-width="1.5"/>
+        <line x1="42" y1="76" x2="42" y2="198" stroke="#10B981" stroke-width="1.5" stroke-dasharray="5"/>
+        <line x1="42" y1="198" x2="58" y2="198" stroke="#10B981" stroke-width="1.5" marker-end="url(#bg)"/>
+        <text x="24" y="142" text-anchor="middle" font-family="Space Grotesk" font-size="8" fill="#10B981" transform="rotate(-90,24,142)">residual</text>
+        <!-- Attention -->
+        <rect x="40" y="108" width="240" height="58" rx="10" fill="#0d2040" stroke="#a78bfa" stroke-width="2"/>
+        <text x="160" y="133" text-anchor="middle" font-family="Space Grotesk" font-size="14" fill="#a78bfa" font-weight="700">Self-Attention</text>
+        <text x="160" y="152" text-anchor="middle" font-family="Space Grotesk" font-size="10" fill="rgba(249,250,251,0.5)">tokens communicate with each other</text>
+        <line x1="160" y1="166" x2="160" y2="184" stroke="#a78bfa" stroke-width="1.5" marker-end="url(#ba)"/>
+        <!-- Add 1 -->
+        <circle cx="160" cy="198" r="14" fill="#070F1A" stroke="#10B981" stroke-width="2"/>
+        <text x="160" y="203" text-anchor="middle" font-family="Space Grotesk" font-size="16" fill="#10B981">+</text>
+        <line x1="160" y1="212" x2="160" y2="228" stroke="#a78bfa" stroke-width="1.5" marker-end="url(#ba)"/>
+        <!-- Norm 2 -->
+        <rect x="100" y="228" width="120" height="28" rx="7" fill="#1E3A5F" stroke="rgba(167,139,250,0.2)"/>
+        <text x="160" y="246" text-anchor="middle" font-family="Space Grotesk" font-size="11" fill="rgba(249,250,251,0.6)">LayerNorm</text>
+        <line x1="160" y1="256" x2="160" y2="274" stroke="#fcd34d" stroke-width="1.5" marker-end="url(#bk)"/>
+        <!-- Skip 2 -->
+        <line x1="60" y1="242" x2="34" y2="242" stroke="#10B981" stroke-width="1.5"/>
+        <line x1="34" y1="242" x2="34" y2="368" stroke="#10B981" stroke-width="1.5" stroke-dasharray="5"/>
+        <line x1="34" y1="368" x2="58" y2="368" stroke="#10B981" stroke-width="1.5" marker-end="url(#bg)"/>
+        <!-- MLP -->
+        <rect x="40" y="274" width="240" height="58" rx="10" fill="#1a0d38" stroke="#fcd34d" stroke-width="2"/>
+        <text x="160" y="299" text-anchor="middle" font-family="Space Grotesk" font-size="14" fill="#fcd34d" font-weight="700">MLP / FFN</text>
+        <text x="160" y="318" text-anchor="middle" font-family="Space Grotesk" font-size="10" fill="rgba(249,250,251,0.5)">per-token transformation</text>
+        <line x1="160" y1="332" x2="160" y2="354" stroke="#fcd34d" stroke-width="1.5" marker-end="url(#bk)"/>
+        <!-- Add 2 -->
+        <circle cx="160" cy="368" r="14" fill="#070F1A" stroke="#10B981" stroke-width="2"/>
+        <text x="160" y="373" text-anchor="middle" font-family="Space Grotesk" font-size="16" fill="#10B981">+</text>
+        <line x1="160" y1="382" x2="160" y2="398" stroke="#a78bfa" stroke-width="1.5" marker-end="url(#ba)"/>
+        <!-- Output -->
+        <rect x="90" y="398" width="140" height="34" rx="8" fill="#0d2040" stroke="#a78bfa" stroke-width="1.5"/>
+        <text x="160" y="420" text-anchor="middle" font-family="Space Grotesk" font-size="12" fill="#a78bfa" font-weight="600">Output  x′</text>
+      </svg>
+    </div>
+    <div class="text-col">
+      <div class="mobile-label">Slide 5 of 14 — The Transformer Block</div>
+      <div class="eyebrow">The Building Block</div>
+      <h2>Stack of <em>attention</em> + <em>MLP</em></h2>
+      <div class="formula-box">
+        <div class="formula-label">Compact form</div>
+        <div class="formula-text">x = x + Attention(Norm(x))</div>
+        <div class="formula-text">x = x + MLP(Norm(x))</div>
+        <div class="formula-note">Pre-norm style used by GPT, LLaMA, Mistral</div>
+      </div>
+      <div class="card" style="margin-top:4px">
+        <h3 style="color:#a78bfa">Attention layer</h3>
+        <p style="font-size:13px;color:rgba(249,250,251,0.75)">Tokens <em>communicate</em>. Each token updates itself by gathering information from other relevant tokens.</p>
+      </div>
+      <div class="card gb" style="margin-top:-4px">
+        <h3>MLP layer</h3>
+        <p style="font-size:13px;color:rgba(249,250,251,0.75)">Tokens <em>compute</em>. Each token transformed independently. Holds most of the model's factual knowledge.</p>
+      </div>
+      <div class="insight"><p><strong>Residual connections</strong> (the + signs) are the gradient highway that makes 96-layer networks like GPT-3 trainable. Each layer refines — it doesn't replace.</p></div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== S6: SELF-ATTENTION + INTERACTIVE ===== -->
+<div class="slide" id="s6">
+  <div class="slide-num">06 / 14</div>
+  <div class="two-col">
+    <div class="text-col">
+      <div class="mobile-label">Slide 6 of 14 — Self-Attention</div>
+      <div class="eyebrow">Self-Attention</div>
+      <h2>Each token asks: <em>who should I look at?</em></h2>
+      <p class="bp">The answer changes with every sentence. Self-attention is dynamic — the model learns which tokens matter to each other from the data, not from fixed rules.</p>
+      <div id="attn-demo">
+        <div class="sent-btns">
+          <button class="sent-btn on" onclick="setSent(0)">"…it was tired"</button>
+          <button class="sent-btn" onclick="setSent(1)">"…it was crowded"</button>
+        </div>
+        <div class="tok-row" id="toks"></div>
+        <div id="bars"></div>
+      </div>
+    </div>
+    <div class="text-col">
+      <div class="card" style="margin-bottom:12px">
+        <h3 style="color:#22d3ee;font-size:12px">WHY THIS MATTERS</h3>
+        <p style="font-size:13px;color:rgba(249,250,251,0.75)">Notice how clicking "it" in sentence 1 shows high attention to "animal" — but in sentence 2 it shifts to "street." Same word, same model, different context-aware result.</p>
+      </div>
+      <div class="card gb">
+        <h3 style="font-size:12px">WHAT ATTENTION COMPUTES</h3>
+        <p style="font-size:13px;color:rgba(249,250,251,0.75);margin-bottom:8px">compare → score → weight → combine</p>
+        <p style="font-size:12px;color:#6B7280">1. Compare my query with all keys<br>2. Score how relevant each token is<br>3. Softmax → weights sum to 1<br>4. Weighted sum of values → my new repr.</p>
+      </div>
+      <div class="insight"><p>This is why Transformers replaced RNNs. Direct token-to-token connections, learned dynamically, in parallel.</p></div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== S7: Q K V ===== -->
+<div class="slide" id="s7">
+  <div class="slide-num">07 / 14</div>
+  <div class="two-col">
+    <div class="text-col">
+      <div class="mobile-label">Slide 7 of 14 — Q, K, V</div>
+      <div class="eyebrow">The Mechanism</div>
+      <h2>Query · Key · <em>Value</em></h2>
+      <p class="bp">Every token produces three vectors by multiplying its embedding by three separate learned weight matrices: W_Q, W_K, W_V.</p>
+      <div style="display:flex;flex-direction:column;gap:10px;margin-top:4px">
+        <div class="card" style="border-color:rgba(167,139,250,0.4)">
+          <h3 style="color:#a78bfa;font-size:13px;margin-bottom:3px">Q — Query: "What am I looking for?"</h3>
+          <p style="font-size:13px;color:rgba(249,250,251,0.7)">"it" (pronoun) → looking for its referent noun</p>
+        </div>
+        <div class="card gb">
+          <h3 style="font-size:13px;margin-bottom:3px">K — Key: "What do I contain?"</h3>
+          <p style="font-size:13px;color:rgba(249,250,251,0.7)">"animal" → I'm a living noun, possible referent<br>"street" → I'm a place noun, also possible referent</p>
+        </div>
+        <div class="card tl">
+          <h3 style="color:#22d3ee;font-size:13px;margin-bottom:3px">V — Value: "What info can I share?"</h3>
+          <p style="font-size:13px;color:rgba(249,250,251,0.7)">Semantic information about that token — passed along weighted by attention score</p>
+        </div>
+      </div>
+      <p style="font-size:12px;color:#6B7280;margin-top:4px">Think: Q = search query · K = document index · V = document content</p>
+    </div>
+    <div class="svg-hide">
+      <svg viewBox="0 0 400 340" style="width:100%;max-height:340px" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <marker id="qta" markerWidth="6" markerHeight="5" refX="6" refY="2.5" orient="auto"><polygon points="0 0,6 2.5,0 5" fill="#a78bfa"/></marker>
+          <marker id="qtb" markerWidth="6" markerHeight="5" refX="6" refY="2.5" orient="auto"><polygon points="0 0,6 2.5,0 5" fill="#fcd34d"/></marker>
+          <marker id="qtc" markerWidth="6" markerHeight="5" refX="6" refY="2.5" orient="auto"><polygon points="0 0,6 2.5,0 5" fill="#22d3ee"/></marker>
+          <marker id="qtg" markerWidth="6" markerHeight="5" refX="6" refY="2.5" orient="auto"><polygon points="0 0,6 2.5,0 5" fill="#10B981"/></marker>
+        </defs>
+        <!-- Token -->
+        <rect x="10" y="110" width="80" height="70" rx="10" fill="#0d2040" stroke="#a78bfa" stroke-width="2"/>
+        <text x="50" y="140" text-anchor="middle" font-family="Space Grotesk" font-size="16" fill="#a78bfa" font-weight="700">"it"</text>
+        <text x="50" y="158" text-anchor="middle" font-family="Space Grotesk" font-size="9" fill="rgba(249,250,251,0.5)">token embed</text>
+        <!-- Three W matrices -->
+        <line x1="90" y1="128" x2="134" y2="90" stroke="#a78bfa" stroke-width="1.5" marker-end="url(#qta)"/>
+        <rect x="134" y="66" width="60" height="40" rx="7" fill="#1E3A5F" stroke="rgba(167,139,250,0.4)"/>
+        <text x="164" y="84" text-anchor="middle" font-family="Space Grotesk" font-size="11" fill="#a78bfa" font-weight="600">W_Q</text>
+        <text x="164" y="99" text-anchor="middle" font-family="Space Grotesk" font-size="9" fill="#6B7280">learned</text>
+        <line x1="90" y1="145" x2="134" y2="145" stroke="#fcd34d" stroke-width="1.5" marker-end="url(#qtb)"/>
+        <rect x="134" y="125" width="60" height="40" rx="7" fill="#1E3A5F" stroke="rgba(252,211,77,0.4)"/>
+        <text x="164" y="143" text-anchor="middle" font-family="Space Grotesk" font-size="11" fill="#fcd34d" font-weight="600">W_K</text>
+        <text x="164" y="158" text-anchor="middle" font-family="Space Grotesk" font-size="9" fill="#6B7280">learned</text>
+        <line x1="90" y1="162" x2="134" y2="196" stroke="#22d3ee" stroke-width="1.5" marker-end="url(#qtc)"/>
+        <rect x="134" y="182" width="60" height="40" rx="7" fill="#1E3A5F" stroke="rgba(34,211,238,0.4)"/>
+        <text x="164" y="200" text-anchor="middle" font-family="Space Grotesk" font-size="11" fill="#22d3ee" font-weight="600">W_V</text>
+        <text x="164" y="215" text-anchor="middle" font-family="Space Grotesk" font-size="9" fill="#6B7280">learned</text>
+        <!-- Q K V outputs -->
+        <line x1="194" y1="86" x2="226" y2="86" stroke="#a78bfa" stroke-width="1.5" marker-end="url(#qta)"/>
+        <rect x="226" y="64" width="120" height="44" rx="8" fill="#0d2040" stroke="#a78bfa" stroke-width="2"/>
+        <text x="286" y="83" text-anchor="middle" font-family="Space Grotesk" font-size="12" fill="#a78bfa" font-weight="700">Query (Q)</text>
+        <text x="286" y="99" text-anchor="middle" font-family="Space Grotesk" font-size="10" fill="rgba(249,250,251,0.5)">What I'm looking for</text>
+        <line x1="194" y1="145" x2="226" y2="145" stroke="#fcd34d" stroke-width="1.5" marker-end="url(#qtb)"/>
+        <rect x="226" y="123" width="120" height="44" rx="8" fill="#0d2040" stroke="#fcd34d" stroke-width="2"/>
+        <text x="286" y="142" text-anchor="middle" font-family="Space Grotesk" font-size="12" fill="#fcd34d" font-weight="700">Key (K)</text>
+        <text x="286" y="158" text-anchor="middle" font-family="Space Grotesk" font-size="10" fill="rgba(249,250,251,0.5)">What I advertise</text>
+        <line x1="194" y1="202" x2="226" y2="202" stroke="#22d3ee" stroke-width="1.5" marker-end="url(#qtc)"/>
+        <rect x="226" y="182" width="120" height="44" rx="8" fill="#0d2040" stroke="#22d3ee" stroke-width="2"/>
+        <text x="286" y="201" text-anchor="middle" font-family="Space Grotesk" font-size="12" fill="#22d3ee" font-weight="700">Value (V)</text>
+        <text x="286" y="217" text-anchor="middle" font-family="Space Grotesk" font-size="10" fill="rgba(249,250,251,0.5)">Info I pass along</text>
+        <!-- Q*K interaction -->
+        <line x1="346" y1="86" x2="365" y2="120" stroke="#a78bfa" stroke-width="1" opacity=".7"/>
+        <line x1="346" y1="145" x2="365" y2="130" stroke="#fcd34d" stroke-width="1" opacity=".7"/>
+        <rect x="350" y="112" width="40" height="28" rx="6" fill="#1E3A5F" stroke="rgba(255,255,255,0.1)"/>
+        <text x="370" y="126" text-anchor="middle" font-family="Space Grotesk" font-size="9" fill="rgba(249,250,251,0.6)">Q·Kᵀ</text>
+        <text x="370" y="138" text-anchor="middle" font-family="Space Grotesk" font-size="8" fill="#6B7280">scores</text>
+        <line x1="370" y1="140" x2="370" y2="158" stroke="#10B981" stroke-width="1.5" marker-end="url(#qtg)"/>
+        <line x1="346" y1="202" x2="360" y2="178" stroke="#22d3ee" stroke-width="1" opacity=".7"/>
+        <rect x="340" y="158" width="55" height="36" rx="6" fill="#0d2040" stroke="#10B981" stroke-width="1.5"/>
+        <text x="367" y="173" text-anchor="middle" font-family="Space Grotesk" font-size="9" fill="#10B981" font-weight="600">w · V</text>
+        <text x="367" y="187" text-anchor="middle" font-family="Space Grotesk" font-size="8" fill="#6B7280">context repr.</text>
+        <!-- Formula at bottom -->
+        <rect x="10" y="256" width="380" height="56" rx="10" fill="#070F1A" stroke="rgba(34,211,238,0.2)"/>
+        <text x="200" y="275" text-anchor="middle" font-family="Space Grotesk" font-size="10" fill="#22d3ee" letter-spacing="2" font-weight="600">THE FORMULA</text>
+        <text x="200" y="298" text-anchor="middle" font-family="Courier New" font-size="14" fill="rgba(249,250,251,0.9)">softmax( Q·Kᵀ / √d ) · V</text>
+      </svg>
+    </div>
+  </div>
+</div>
+
+<!-- ===== S8: ATTENTION MATH ===== -->
+<div class="slide" id="s8">
+  <div class="slide-num">08 / 14</div>
+  <div class="two-col">
+    <div class="text-col">
+      <div class="mobile-label">Slide 8 of 14 — Attention Math</div>
+      <div class="eyebrow">The Formula</div>
+      <h2>You don't derive it. You <em>explain</em> it.</h2>
+      <div class="formula-box">
+        <div class="formula-label">Scaled Dot-Product Attention</div>
+        <div class="formula-text">softmax( Q·Kᵀ / √d<sub>k</sub> ) · V</div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:8px;margin-top:6px">
+        <div style="padding:10px 14px;background:rgba(167,139,250,0.08);border-left:3px solid #a78bfa;border-radius:0 8px 8px 0">
+          <div style="font-family:'Space Grotesk',sans-serif;font-size:11px;font-weight:700;color:#a78bfa;margin-bottom:3px">Q·Kᵀ — relevance scores</div>
+          <div style="font-size:13px;color:rgba(249,250,251,0.7)">Dot product of query with every key. High score = "these tokens are relevant to each other."</div>
+        </div>
+        <div style="padding:10px 14px;background:rgba(252,211,77,0.06);border-left:3px solid #fcd34d;border-radius:0 8px 8px 0">
+          <div style="font-family:'Space Grotesk',sans-serif;font-size:11px;font-weight:700;color:#fcd34d;margin-bottom:3px">÷ √d — scale factor</div>
+          <div style="font-size:13px;color:rgba(249,250,251,0.7)">Prevents scores from becoming too large, which would push softmax into saturation (near-zero gradients).</div>
+        </div>
+        <div style="padding:10px 14px;background:rgba(16,185,129,0.06);border-left:3px solid #10B981;border-radius:0 8px 8px 0">
+          <div style="font-family:'Space Grotesk',sans-serif;font-size:11px;font-weight:700;color:#10B981;margin-bottom:3px">softmax — normalize to weights</div>
+          <div style="font-size:13px;color:rgba(249,250,251,0.7)">Turns raw scores into a probability distribution. All weights sum to 1.0.</div>
+        </div>
+        <div style="padding:10px 14px;background:rgba(34,211,238,0.06);border-left:3px solid #22d3ee;border-radius:0 8px 8px 0">
+          <div style="font-family:'Space Grotesk',sans-serif;font-size:11px;font-weight:700;color:#22d3ee;margin-bottom:3px">· V — weighted sum</div>
+          <div style="font-size:13px;color:rgba(249,250,251,0.7)">Blend value vectors by relevance weights. Output = context-aware representation.</div>
+        </div>
+      </div>
+    </div>
+    <div class="text-col">
+      <div class="card" style="margin-bottom:12px">
+        <h3 style="color:#22d3ee;font-size:12px;margin-bottom:10px">ATTENTION WEIGHTS FOR TOKEN "it"</h3>
+        <div style="font-size:12px;color:#6B7280;margin-bottom:10px;font-family:'Space Grotesk',sans-serif">Sentence: "…animal…street…it was tired"</div>
+        <div style="display:flex;flex-direction:column;gap:7px">
+          <div class="bar-row"><div class="bar-label">animal</div><div class="bar-track"><div class="bar-fill" style="width:62%"></div><span class="bar-pct">0.62</span></div></div>
+          <div class="bar-row"><div class="bar-label">tired</div><div class="bar-track"><div class="bar-fill" style="width:24%"></div><span class="bar-pct">0.24</span></div></div>
+          <div class="bar-row"><div class="bar-label">street</div><div class="bar-track"><div class="bar-fill" style="width:8%"></div><span class="bar-pct">0.08</span></div></div>
+          <div class="bar-row"><div class="bar-label">others</div><div class="bar-track"><div class="bar-fill" style="width:6%"></div><span class="bar-pct">0.06</span></div></div>
+        </div>
+        <div style="margin-top:12px;font-size:12px;color:#6B7280">new repr. of "it" ≈ 0.62·V(animal) + 0.24·V(tired) + …</div>
+      </div>
+      <div class="insight"><p>"QK-transpose computes relevance scores; divide by root-d prevents saturation; softmax converts to weights; multiply by V produces the context-aware output." — use this exact sentence in interviews.</p></div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== S9: MULTI-HEAD + POSITIONAL ===== -->
+<div class="slide" id="s9">
+  <div class="slide-num">09 / 14</div>
+  <div class="two-col">
+    <div class="text-col">
+      <div class="mobile-label">Slide 9 of 14 — Multi-head &amp; Positional</div>
+      <div class="eyebrow">Multi-head Attention</div>
+      <h2>Multiple <em>relationship</em> views in parallel</h2>
+      <p class="bp">One attention head gives one view of the sequence. Language carries many simultaneous relationship types — multi-head attention runs several attention operations in parallel, each in its own learned subspace.</p>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:4px">
+        <div class="card" style="padding:12px"><div style="font-size:11px;color:#a78bfa;font-family:'Space Grotesk',sans-serif;font-weight:700;margin-bottom:4px">Head 1 (example)</div><div style="font-size:12px;color:rgba(249,250,251,0.7)">subject–verb links</div></div>
+        <div class="card gb" style="padding:12px"><div style="font-size:11px;color:#fcd34d;font-family:'Space Grotesk',sans-serif;font-weight:700;margin-bottom:4px">Head 2 (example)</div><div style="font-size:12px;color:rgba(249,250,251,0.7)">pronoun → referent</div></div>
+        <div class="card tl" style="padding:12px"><div style="font-size:11px;color:#22d3ee;font-family:'Space Grotesk',sans-serif;font-weight:700;margin-bottom:4px">Head 3 (example)</div><div style="font-size:12px;color:rgba(249,250,251,0.7)">local syntax</div></div>
+        <div class="card pk" style="padding:12px"><div style="font-size:11px;color:#F472B6;font-family:'Space Grotesk',sans-serif;font-weight:700;margin-bottom:4px">Head N …</div><div style="font-size:12px;color:rgba(249,250,251,0.7)">long-range deps</div></div>
+      </div>
+      <p style="font-size:12px;color:#6B7280;margin-top:6px">⚠ Many heads have no clean human-readable interpretation — multiple subspaces ≠ labelled functions.</p>
+    </div>
+    <div class="text-col">
+      <div class="eyebrow">Positional Encoding</div>
+      <h2>Attention is <em>order-agnostic</em> by default</h2>
+      <p class="bp" style="font-size:14px">"The dog bit the man" and "The man bit the dog" are the same set of tokens. Without position info, the model treats them identically.</p>
+      <div class="card" style="margin-top:4px">
+        <h3 style="color:#22d3ee;font-size:12px;margin-bottom:8px">FIX: add position vectors to embeddings</h3>
+        <div style="font-family:'Courier New',monospace;font-size:13px;color:rgba(249,250,251,0.85);margin-bottom:10px">input = token_embed + position_embed</div>
+        <div style="display:flex;flex-direction:column;gap:5px">
+          <div style="font-size:12px;color:rgba(249,250,251,0.7)"><span style="color:#fcd34d;font-weight:600">Sinusoidal</span> — original 2017 paper, fixed formula</div>
+          <div style="font-size:12px;color:rgba(249,250,251,0.7)"><span style="color:#fcd34d;font-weight:600">Learned</span> — GPT-style, train a vector per position</div>
+          <div style="font-size:12px;color:rgba(249,250,251,0.7)"><span style="color:#10B981;font-weight:600">RoPE</span> — LLaMA, Mistral, modern LLMs. Encodes relative position via Q/K rotation. Better generalisation to longer sequences.</div>
+        </div>
+      </div>
+      <div class="insight" style="margin-top:8px"><p>"Transformers need positional encoding because self-attention is order-agnostic by default. Position encodings tell the model where each token sits in the sequence."</p></div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== S10: ENCODER vs DECODER ===== -->
+<div class="slide" id="s10">
+  <div class="slide-num">10 / 14</div>
+  <div style="width:100%;max-width:1060px">
+    <div style="margin-bottom:18px;text-align:center">
+      <div class="mobile-label">Slide 10 of 14 — Encoder vs Decoder</div>
+      <div class="eyebrow center">Architecture Variants</div>
+      <h2>Same block. <em>Different masking.</em></h2>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px" class="three-grid">
+      <div class="card" style="border-color:rgba(167,139,250,0.4)">
+        <div style="font-size:22px;margin-bottom:8px">🔍</div>
+        <h3 style="color:#a78bfa">Encoder-only</h3>
+        <div style="font-size:11px;color:#6B7280;font-family:'Space Grotesk',sans-serif;font-weight:600;margin-bottom:8px">BERT · RoBERTa · DeBERTa</div>
+        <p style="font-size:13px;color:rgba(249,250,251,0.75);margin-bottom:10px">Bidirectional attention — each token sees left AND right context simultaneously. Best for understanding.</p>
+        <div style="display:flex;flex-direction:column;gap:4px">
+          <div style="font-size:12px;color:#10B981">✓ Classification</div>
+          <div style="font-size:12px;color:#10B981">✓ Semantic embeddings</div>
+          <div style="font-size:12px;color:#10B981">✓ Retrieval / reranking</div>
+          <div style="font-size:12px;color:#10B981">✓ NER, extractive QA</div>
+          <div style="font-size:12px;color:#F472B6">✗ Open-ended generation</div>
+        </div>
+      </div>
+      <div class="card gb">
+        <div style="font-size:22px;margin-bottom:8px">✍️</div>
+        <h3>Decoder-only</h3>
+        <div style="font-size:11px;color:#6B7280;font-family:'Space Grotesk',sans-serif;font-weight:600;margin-bottom:8px">GPT · LLaMA · Mistral · Claude</div>
+        <p style="font-size:13px;color:rgba(249,250,251,0.75);margin-bottom:10px">Causal attention — each token only sees past tokens. Trained with next-token prediction. Best for generation.</p>
+        <div style="display:flex;flex-direction:column;gap:4px">
+          <div style="font-size:12px;color:#10B981">✓ Text &amp; code generation</div>
+          <div style="font-size:12px;color:#10B981">✓ Chat, instruction following</div>
+          <div style="font-size:12px;color:#10B981">✓ Tool calling / agents</div>
+          <div style="font-size:12px;color:#10B981">✓ Reasoning, planning</div>
+        </div>
+      </div>
+      <div class="card tl">
+        <div style="font-size:22px;margin-bottom:8px">🔄</div>
+        <h3 style="color:#22d3ee">Encoder-Decoder</h3>
+        <div style="font-size:11px;color:#6B7280;font-family:'Space Grotesk',sans-serif;font-weight:600;margin-bottom:8px">T5 · BART · translation models</div>
+        <p style="font-size:13px;color:rgba(249,250,251,0.75);margin-bottom:10px">Encoder reads input (bidir), decoder generates output via cross-attention. Best for structured input→output.</p>
+        <div style="display:flex;flex-direction:column;gap:4px">
+          <div style="font-size:12px;color:#10B981">✓ Translation</div>
+          <div style="font-size:12px;color:#10B981">✓ Summarization</div>
+          <div style="font-size:12px;color:#10B981">✓ Structured I/O tasks</div>
+        </div>
+      </div>
+    </div>
+    <div class="insight" style="margin-top:16px;text-align:left"><p>Most modern LLMs (GPT-4, Claude, LLaMA) are <strong>decoder-only</strong>. The decoder-only architecture is simpler, scales well, and emergent capabilities appeared at large scale with next-token prediction alone.</p></div>
+  </div>
+</div>
+
+<!-- ===== S11: CAUSAL MASKING ===== -->
+<div class="slide" id="s11">
+  <div class="slide-num">11 / 14</div>
+  <div class="two-col">
+    <div class="text-col">
+      <div class="mobile-label">Slide 11 of 14 — Causal Masking</div>
+      <div class="eyebrow">Decoder-only Detail</div>
+      <h2>Causal masking: <em>no peeking</em> at future tokens</h2>
+      <p class="bp">Training with next-token prediction requires that the model not see the token it's predicting. Causal masking enforces this — and ensures training exactly matches inference.</p>
+      <div class="card" style="margin-top:4px">
+        <h3 style="color:#a78bfa;font-size:12px">TRAINING (parallel)</h3>
+        <p style="font-size:13px;color:rgba(249,250,251,0.75)">All positions computed in one forward pass. The causal mask blocks each position from seeing future ones. Efficient — processes the full sequence at once.</p>
+      </div>
+      <div class="card gb" style="margin-top:8px">
+        <h3 style="font-size:12px">INFERENCE (sequential)</h3>
+        <p style="font-size:13px;color:rgba(249,250,251,0.75)">One token at a time. Each new token only sees previously generated tokens. Training matches inference — that's why it works.</p>
+      </div>
+      <div class="insight" style="margin-top:8px"><p>Blocked positions get score = <strong>−∞</strong> before softmax. After softmax, weight → 0. Future tokens are invisible.</p></div>
+    </div>
+    <div class="svg-hide">
+      <svg viewBox="0 0 380 280" style="width:100%;max-height:280px" xmlns="http://www.w3.org/2000/svg">
+        <text x="190" y="18" text-anchor="middle" font-family="Space Grotesk" font-size="11" fill="#6B7280" font-weight="600" letter-spacing="1">CAUSAL MASK — rows = queries, cols = keys</text>
+        <!-- Col headers -->
+        <text x="112" y="44" text-anchor="middle" font-family="Space Grotesk" font-size="11" fill="#9CA3AF">I</text>
+        <text x="164" y="44" text-anchor="middle" font-family="Space Grotesk" font-size="11" fill="#9CA3AF">love</text>
+        <text x="220" y="44" text-anchor="middle" font-family="Space Grotesk" font-size="11" fill="#9CA3AF">machine</text>
+        <text x="276" y="44" text-anchor="middle" font-family="Space Grotesk" font-size="11" fill="#9CA3AF">learning</text>
+        <!-- Row labels -->
+        <text x="76" y="76" text-anchor="end" font-family="Space Grotesk" font-size="11" fill="#9CA3AF">I</text>
+        <text x="76" y="116" text-anchor="end" font-family="Space Grotesk" font-size="11" fill="#9CA3AF">love</text>
+        <text x="76" y="156" text-anchor="end" font-family="Space Grotesk" font-size="11" fill="#9CA3AF">machine</text>
+        <text x="76" y="196" text-anchor="end" font-family="Space Grotesk" font-size="11" fill="#9CA3AF">learning</text>
+        <!-- Row 1 -->
+        <rect x="88" y="56" width="48" height="30" rx="5" fill="rgba(167,139,250,0.6)"/><text x="112" y="76" text-anchor="middle" font-family="Space Grotesk" font-size="12" fill="#070F1A" font-weight="700">✓</text>
+        <rect x="140" y="56" width="48" height="30" rx="5" fill="rgba(244,114,182,0.15)"/><text x="164" y="76" text-anchor="middle" font-family="Space Grotesk" font-size="14" fill="#F472B6">✗</text>
+        <rect x="196" y="56" width="48" height="30" rx="5" fill="rgba(244,114,182,0.15)"/><text x="220" y="76" text-anchor="middle" font-family="Space Grotesk" font-size="14" fill="#F472B6">✗</text>
+        <rect x="252" y="56" width="48" height="30" rx="5" fill="rgba(244,114,182,0.15)"/><text x="276" y="76" text-anchor="middle" font-family="Space Grotesk" font-size="14" fill="#F472B6">✗</text>
+        <!-- Row 2 -->
+        <rect x="88" y="96" width="48" height="30" rx="5" fill="rgba(167,139,250,0.45)"/><text x="112" y="116" text-anchor="middle" font-family="Space Grotesk" font-size="12" fill="#070F1A" font-weight="700">✓</text>
+        <rect x="140" y="96" width="48" height="30" rx="5" fill="rgba(167,139,250,0.6)"/><text x="164" y="116" text-anchor="middle" font-family="Space Grotesk" font-size="12" fill="#070F1A" font-weight="700">✓</text>
+        <rect x="196" y="96" width="48" height="30" rx="5" fill="rgba(244,114,182,0.15)"/><text x="220" y="116" text-anchor="middle" font-family="Space Grotesk" font-size="14" fill="#F472B6">✗</text>
+        <rect x="252" y="96" width="48" height="30" rx="5" fill="rgba(244,114,182,0.15)"/><text x="276" y="116" text-anchor="middle" font-family="Space Grotesk" font-size="14" fill="#F472B6">✗</text>
+        <!-- Row 3 -->
+        <rect x="88" y="136" width="48" height="30" rx="5" fill="rgba(167,139,250,0.45)"/><text x="112" y="156" text-anchor="middle" font-family="Space Grotesk" font-size="12" fill="#070F1A" font-weight="700">✓</text>
+        <rect x="140" y="136" width="48" height="30" rx="5" fill="rgba(167,139,250,0.45)"/><text x="164" y="156" text-anchor="middle" font-family="Space Grotesk" font-size="12" fill="#070F1A" font-weight="700">✓</text>
+        <rect x="196" y="136" width="48" height="30" rx="5" fill="rgba(167,139,250,0.6)"/><text x="220" y="156" text-anchor="middle" font-family="Space Grotesk" font-size="12" fill="#070F1A" font-weight="700">✓</text>
+        <rect x="252" y="136" width="48" height="30" rx="5" fill="rgba(244,114,182,0.15)"/><text x="276" y="156" text-anchor="middle" font-family="Space Grotesk" font-size="14" fill="#F472B6">✗</text>
+        <!-- Row 4 -->
+        <rect x="88" y="176" width="48" height="30" rx="5" fill="rgba(167,139,250,0.45)"/><text x="112" y="196" text-anchor="middle" font-family="Space Grotesk" font-size="12" fill="#070F1A" font-weight="700">✓</text>
+        <rect x="140" y="176" width="48" height="30" rx="5" fill="rgba(167,139,250,0.45)"/><text x="164" y="196" text-anchor="middle" font-family="Space Grotesk" font-size="12" fill="#070F1A" font-weight="700">✓</text>
+        <rect x="196" y="176" width="48" height="30" rx="5" fill="rgba(167,139,250,0.45)"/><text x="220" y="196" text-anchor="middle" font-family="Space Grotesk" font-size="12" fill="#070F1A" font-weight="700">✓</text>
+        <rect x="252" y="176" width="48" height="30" rx="5" fill="rgba(167,139,250,0.6)"/><text x="276" y="196" text-anchor="middle" font-family="Space Grotesk" font-size="12" fill="#070F1A" font-weight="700">✓</text>
+        <!-- Legend -->
+        <rect x="88" y="226" width="14" height="12" rx="3" fill="rgba(167,139,250,0.6)"/>
+        <text x="108" y="237" font-family="Space Grotesk" font-size="10" fill="#9CA3AF">can attend (past + self)</text>
+        <rect x="200" y="226" width="14" height="12" rx="3" fill="rgba(244,114,182,0.15)"/>
+        <text x="220" y="237" font-family="Space Grotesk" font-size="10" fill="#9CA3AF">blocked (future)</text>
+        <text x="190" y="260" text-anchor="middle" font-family="Space Grotesk" font-size="10" fill="#6B7280">Lower-triangular matrix. Blocked cells → score = −∞ before softmax.</text>
+      </svg>
+    </div>
+  </div>
+</div>
+
+<!-- ===== S12: CONTEXT + KV CACHE ===== -->
+<div class="slide" id="s12">
+  <div class="slide-num">12 / 14</div>
+  <div class="two-col">
+    <div class="text-col">
+      <div class="mobile-label">Slide 12 of 14 — Context &amp; KV Cache</div>
+      <div class="eyebrow">Context Window</div>
+      <h2>Bigger context ≠ <em>always better</em></h2>
+      <p class="bp">The context window is the max tokens the model can attend to. Standard attention scales O(n²) — every token compares with every other token.</p>
+      <div style="font-family:'Courier New',monospace;font-size:13px;background:#070F1A;border:1px solid rgba(34,211,238,0.2);border-radius:8px;padding:12px;margin-top:4px;color:rgba(249,250,251,0.8)">
+        1k tokens → 1,000,000 comparisons<br>
+        10k tokens → 100,000,000 comparisons<br>
+        <span style="color:#F472B6">100k tokens → 10B comparisons</span>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px">
+        <div style="padding:10px;background:rgba(16,185,129,0.08);border:1px solid rgba(16,185,129,0.25);border-radius:8px">
+          <div style="font-size:11px;color:#10B981;font-family:'Space Grotesk',sans-serif;font-weight:700;margin-bottom:4px">GAINS</div>
+          <div style="font-size:12px;color:rgba(249,250,251,0.7)">More info available · fewer retrieval failures</div>
+        </div>
+        <div style="padding:10px;background:rgba(244,114,182,0.08);border:1px solid rgba(244,114,182,0.25);border-radius:8px">
+          <div style="font-size:11px;color:#F472B6;font-family:'Space Grotesk',sans-serif;font-weight:700;margin-bottom:4px">COSTS</div>
+          <div style="font-size:12px;color:rgba(249,250,251,0.7)">↑ latency · ↑ memory · ↑ cost · "lost in the middle"</div>
+        </div>
+      </div>
+    </div>
+    <div class="text-col">
+      <div class="eyebrow">KV Cache</div>
+      <h2>Store past K, V. Don't <em>recompute</em>.</h2>
+      <div class="card" style="margin-bottom:10px">
+        <h3 style="color:#F472B6;font-size:12px;margin-bottom:8px">WITHOUT CACHE — naïve</h3>
+        <div style="font-size:12px;color:rgba(249,250,251,0.7)">Generating token 5 → recompute K,V for tokens 1–4<br>Generating token 6 → recompute K,V for tokens 1–5<br><span style="color:#F472B6">O(n²) total compute — wasteful</span></div>
+      </div>
+      <div class="card gr">
+        <h3 style="font-size:12px;margin-bottom:8px">WITH KV CACHE ✓</h3>
+        <div style="font-size:12px;color:rgba(249,250,251,0.7);margin-bottom:8px">Store K,V for past tokens once. For each new token, compute only its own Q, K, V — attend to cached past.<br><span style="color:#10B981">O(n) per step → fast generation</span></div>
+        <div style="font-size:11px;color:#6B7280;padding-top:8px;border-top:1px solid rgba(255,255,255,0.06)">
+          Memory cost grows with: sequence length × layers × heads × hidden dim<br>
+          Bottleneck at large batch size on GPU
+        </div>
+      </div>
+      <div class="insight"><p><strong>KV cache trades compute for memory.</strong> It's why throughput on long-context requests is memory-bound, not compute-bound.</p></div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== S13: PRODUCTION + HALLUCINATIONS ===== -->
+<div class="slide" id="s13">
+  <div class="slide-num">13 / 14</div>
+  <div style="width:100%;max-width:1060px">
+    <div style="margin-bottom:18px">
+      <div class="mobile-label">Slide 13 of 14 — Production</div>
+      <div class="eyebrow center" style="justify-content:center">Production Reality</div>
+      <h2 style="text-align:center">Why hallucinations happen — and what to do</h2>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px" class="two-grid">
+      <div class="card pk">
+        <h3>Hallucinations — the mechanism</h3>
+        <p style="font-size:13px;color:rgba(249,250,251,0.75);margin-top:4px">LLMs are trained to generate <em>plausible</em> text, not <em>verified</em> truth. When context is missing or ambiguous, the model fills in convincingly but incorrectly.</p>
+        <div style="margin-top:10px;font-size:12px;color:#6B7280">"Give me the citation for this." → model has no source → fabricates a plausible-looking reference.</div>
+        <p style="font-size:12px;color:#10B981;margin-top:8px">✓ Fix: RAG · tool use · citations · abstention training · structured outputs · evals</p>
+      </div>
+      <div class="card gb">
+        <h3>Debugging wrong answers</h3>
+        <p style="font-size:13px;color:rgba(249,250,251,0.75);margin-top:4px">Don't jump to fine-tuning. Check the chain first:</p>
+        <div style="display:flex;flex-direction:column;gap:4px;margin-top:8px">
+          <div style="font-size:12px;color:rgba(249,250,251,0.7)">1. Was the query understood correctly?</div>
+          <div style="font-size:12px;color:rgba(249,250,251,0.7)">2. Was the right context retrieved?</div>
+          <div style="font-size:12px;color:rgba(249,250,251,0.7)">3. Was context in the prompt, or too noisy?</div>
+          <div style="font-size:12px;color:rgba(249,250,251,0.7)">4. Did the model ignore relevant evidence?</div>
+          <div style="font-size:12px;color:rgba(249,250,251,0.7)">5. Was output schema validated?</div>
+          <div style="font-size:12px;color:rgba(249,250,251,0.7)">6. Was sampling too random?</div>
+          <div style="font-size:12px;color:rgba(249,250,251,0.7)">7. Is the model too weak for this task?</div>
+        </div>
+      </div>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px" class="two-grid">
+      <div class="card tl" style="padding:14px"><h3 style="color:#22d3ee;font-size:11px;margin-bottom:4px">LATENCY</h3><p style="font-size:12px">Model size · input/output length · KV cache pressure · tool calls · retrieval</p></div>
+      <div class="card" style="padding:14px"><h3 style="font-size:11px;margin-bottom:4px">COST</h3><p style="font-size:12px">Input + output tokens · GPU-hours · storage · reranking</p></div>
+      <div class="card gr" style="padding:14px"><h3 style="font-size:11px;margin-bottom:4px">RELIABILITY</h3><p style="font-size:12px">Structured outputs · retries · fallback · RAG · evals · human review</p></div>
+      <div class="card pk" style="padding:14px"><h3 style="font-size:11px;margin-bottom:4px">SAFETY</h3><p style="font-size:12px">Prompt injection · tool abuse · PII leakage · over-permissioned agents</p></div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== S14: RECAP ===== -->
+<div class="slide" id="s14">
+  <div class="slide-num">14 / 14</div>
+  <div class="center-col">
+    <div class="mobile-label">Slide 14 of 14 — Recap</div>
+    <div class="eyebrow center">What you just learned</div>
+    <h2>Transformers — <em>the full picture</em></h2>
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;text-align:left;width:100%" class="three-grid">
+      <div class="card gr">
+        <h3 style="font-size:13px;margin-bottom:6px">Architecture</h3>
+        <p style="font-size:13px">Token → embed → position → blocks (Attn + MLP + residuals + norm) → logits → next token</p>
+      </div>
+      <div class="card" style="border-color:rgba(167,139,250,0.4)">
+        <h3 style="color:#a78bfa;font-size:13px;margin-bottom:6px">Q · K · V</h3>
+        <p style="font-size:13px">Query = what I want · Key = what I offer · Value = info I share · softmax(QKᵀ/√d)·V</p>
+      </div>
+      <div class="card gb">
+        <h3 style="font-size:13px;margin-bottom:6px">Model types</h3>
+        <p style="font-size:13px">Encoder-only (understanding) · Decoder-only (generation) · Encoder-Decoder (translation)</p>
+      </div>
+      <div class="card tl">
+        <h3 style="color:#22d3ee;font-size:13px;margin-bottom:6px">Causal masking</h3>
+        <p style="font-size:13px">Blocks future tokens. Aligns training with inference. Lower-triangular attention matrix.</p>
+      </div>
+      <div class="card pk">
+        <h3 style="font-size:13px;margin-bottom:6px">KV Cache</h3>
+        <p style="font-size:13px">Store past K, V once → O(n) per decoding step. Trades compute for GPU memory.</p>
+      </div>
+      <div class="card" style="border-color:rgba(245,158,11,0.35)">
+        <h3 style="font-size:13px;margin-bottom:6px">Hallucinations</h3>
+        <p style="font-size:13px">Plausible ≠ true. Fix with RAG, tool use, citations, abstention, structured outputs.</p>
+      </div>
+    </div>
+    <div class="insight" style="text-align:left;width:100%"><p>Next up: <strong>Vector Databases</strong> — where embeddings live and how they're indexed for sub-10ms retrieval at scale. Day 3 →</p></div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;justify-content:center">
+      <span class="tag gr">Architecture ✓</span>
+      <span class="tag gr">Q · K · V ✓</span>
+      <span class="tag gr">Multi-head ✓</span>
+      <span class="tag gr">Causal mask ✓</span>
+      <span class="tag gr">KV Cache ✓</span>
+      <span class="tag gr">Hallucinations ✓</span>
+    </div>
+  </div>
+</div>
+
+</div><!-- /slides -->
+
+<div id="nav">
+  <button class="nav-btn" id="prev" onclick="go(-1)">← Prev</button>
+  <span id="counter">1 / 14</span>
+  <button class="nav-btn" id="next" onclick="go(1)">Next →</button>
+</div>
+
+<script>
+// attention demo data
+const sents = [
+  { tokens:["The","animal","did","not","cross","the","street","because","it","was","tired"],
+    w:{"The":[.65,.04,.03,.03,.04,.07,.04,.03,.03,.02,.02],"animal":[.05,.62,.04,.04,.05,.04,.04,.04,.04,.02,.02],"did":[.04,.06,.58,.08,.07,.04,.04,.04,.03,.01,.01],"not":[.04,.06,.08,.58,.07,.04,.04,.04,.03,.01,.01],"cross":[.04,.06,.06,.06,.55,.05,.06,.05,.04,.02,.01],"the":[.06,.05,.04,.04,.05,.58,.08,.04,.03,.02,.01],"street":[.04,.04,.03,.03,.06,.08,.60,.05,.03,.02,.02],"because":[.04,.06,.04,.04,.06,.04,.05,.58,.05,.02,.02],"it":[.02,.62,.02,.02,.04,.03,.08,.03,.05,.03,.06],"was":[.03,.08,.03,.03,.04,.04,.04,.04,.10,.44,.13],"tired":[.02,.10,.02,.02,.04,.03,.05,.04,.20,.16,.32]}},
+  { tokens:["The","animal","did","not","cross","the","street","because","it","was","crowded"],
+    w:{"The":[.65,.04,.03,.03,.04,.07,.04,.03,.03,.02,.02],"animal":[.05,.62,.04,.04,.05,.04,.04,.04,.04,.02,.02],"did":[.04,.06,.58,.08,.07,.04,.04,.04,.03,.01,.01],"not":[.04,.06,.08,.58,.07,.04,.04,.04,.03,.01,.01],"cross":[.04,.05,.05,.05,.55,.05,.08,.05,.04,.02,.02],"the":[.06,.04,.04,.04,.05,.58,.09,.04,.03,.02,.01],"street":[.04,.04,.03,.03,.06,.08,.60,.05,.03,.02,.02],"because":[.04,.04,.04,.04,.06,.05,.07,.58,.05,.02,.01],"it":[.02,.08,.02,.02,.04,.06,.62,.03,.05,.02,.04],"was":[.03,.04,.03,.03,.04,.05,.10,.04,.08,.42,.14],"crowded":[.02,.04,.02,.02,.05,.08,.22,.04,.16,.12,.23]}}
+];
+let cs=0, ct="it";
+function setSent(i){
+  cs=i;
+  document.querySelectorAll('.sent-btn').forEach((b,j)=>b.classList.toggle('on',j===i));
+  renderToks(); renderBars(ct);
+}
+function renderToks(){
+  const s=sents[cs];
+  const c=document.getElementById('toks'); if(!c) return;
+  c.innerHTML='';
+  s.tokens.forEach(t=>{
+    const el=document.createElement('button');
+    el.className='tok-btn'+(t===ct?' sel':'');
+    el.textContent=t;
+    el.onclick=()=>{ct=t;renderToks();renderBars(t);};
+    c.appendChild(el);
+  });
+}
+function renderBars(tok){
+  const s=sents[cs];
+  const ws=s.w[tok]||[];
+  const items=s.tokens.map((t,i)=>({t,w:ws[i]||0})).sort((a,b)=>b.w-a.w);
+  const c=document.getElementById('bars'); if(!c) return;
+  c.innerHTML='';
+  items.forEach(({t,w})=>{
+    const p=Math.round(w*100);
+    const r=document.createElement('div'); r.className='bar-row';
+    r.innerHTML=`<div class="bar-label">${t}</div><div class="bar-track"><div class="bar-fill" style="width:0%"></div><span class="bar-pct">${p}%</span></div>`;
+    c.appendChild(r);
+    setTimeout(()=>r.querySelector('.bar-fill').style.width=p+'%',30);
+  });
+}
+renderToks(); renderBars('it');
+
+// slide engine
+const isMobile = window.innerWidth < 768;
+if (!isMobile) {
+  const slides = document.querySelectorAll('.slide');
+  const total = slides.length;
+  let cur = 0;
+  function go(dir) {
+    const n = cur + dir;
+    if (n < 0 || n >= total) return;
+    slides[cur].classList.remove('active');
+    cur = n;
+    slides[cur].classList.add('active');
+    document.getElementById('counter').textContent = (cur+1) + ' / ' + total;
+    document.getElementById('progress').style.width = (((cur+1)/total)*100) + '%';
+    document.getElementById('prev').disabled = cur === 0;
+    document.getElementById('next').disabled = cur === total-1;
+  }
+  window.go = go;
+  document.addEventListener('keydown', e => {
+    if (e.key==='ArrowRight'||e.key==='ArrowDown') go(1);
+    if (e.key==='ArrowLeft'||e.key==='ArrowUp') go(-1);
+  });
+  document.getElementById('prev').disabled = true;
+  document.getElementById('progress').style.width = ((1/total)*100) + '%';
+}
+</script>
+</body>
+</html>

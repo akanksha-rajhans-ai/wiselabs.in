@@ -1,1 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Jev — WiseLabs Slides</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0D1B2A;--surface:#111827;--violet:#7C3AED;--violet-light:#a78bfa;
+  --gold:#F59E0B;--gold-light:#fcd34d;--white:#F9FAFB;--muted:#8b94a3;
+  --border:rgba(124,58,237,0.25);--green:#10B981;--pink:#F472B6;--teal:#22d3ee;
+}
+html,body{height:100%;background:var(--bg);color:var(--white);font-family:'Inter',sans-serif;overflow:hidden}
+.deck{position:relative;width:100%;height:100%;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+.slide{display:none;position:absolute;inset:0;padding:6vh 8vw;flex-direction:column;justify-content:center}
+.slide.active{display:flex}
+.eyebrow{font-family:'Space Grotesk',sans-serif;font-size:13px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:var(--violet-light);margin-bottom:18px}
+h1{font-family:'Space Grotesk',sans-serif;font-weight:700;letter-spacing:-1.5px;line-height:1.05;font-size:clamp(32px,5vw,64px);margin-bottom:20px}
+h1 em{font-style:normal;color:var(--violet-light)}
+h2{font-family:'Space Grotesk',sans-serif;font-weight:700;letter-spacing:-1px;font-size:clamp(26px,3.6vw,44px);margin-bottom:28px;border-bottom:1px solid rgba(255,255,255,0.08);padding-bottom:16px}
+.sub{font-size:clamp(16px,1.6vw,22px);color:rgba(249,250,251,0.65);max-width:900px;line-height:1.6}
+.tag{display:inline-block;font-family:'Space Grotesk',sans-serif;font-size:12px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;padding:5px 14px;border-radius:20px;background:rgba(124,58,237,0.15);border:1px solid rgba(124,58,237,0.35);color:var(--violet-light);margin-bottom:22px;width:fit-content}
+ul.pts{list-style:none;display:flex;flex-direction:column;gap:16px;margin-top:8px}
+ul.pts li{font-size:clamp(16px,1.9vw,24px);color:rgba(249,250,251,0.85);padding-left:34px;position:relative;line-height:1.5}
+ul.pts li::before{content:"→";position:absolute;left:0;color:var(--violet-light);font-weight:700}
+ul.pts li strong{color:var(--white)}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:40px;align-items:start;margin-top:10px}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;margin-top:24px}
+.stat{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:24px 18px;text-align:center}
+.stat .n{font-family:'Space Grotesk',sans-serif;font-size:clamp(26px,3vw,38px);font-weight:700;color:var(--gold-light)}
+.stat .l{font-size:13px;color:var(--muted);margin-top:6px;line-height:1.4}
+.flow{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin:26px 0}
+.box{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:16px 20px;font-family:'Space Grotesk',sans-serif;font-size:15px;font-weight:600;text-align:center}
+.box.hi{border-color:rgba(245,158,11,0.5);color:var(--gold-light);background:rgba(245,158,11,0.08)}
+.arrow{color:var(--violet-light);font-size:20px}
+.note{background:rgba(124,58,237,0.09);border-left:3px solid var(--violet);border-radius:0 10px 10px 0;padding:16px 20px;margin-top:22px;font-size:clamp(14px,1.4vw,18px);color:rgba(249,250,251,0.85)}
+.callout-gold{background:rgba(245,158,11,0.08);border:1px solid rgba(245,158,11,0.25);border-radius:12px;padding:18px 22px;margin-top:18px;font-size:clamp(14px,1.4vw,17px);color:rgba(249,250,251,0.85)}
+.code{background:#050D16;border:1px solid var(--border);border-radius:12px;padding:18px 22px;font-family:'Courier New',monospace;font-size:clamp(12px,1.2vw,15px);line-height:1.8;color:#e2e8f0;margin-top:16px}
+.code .s{color:#86efac}.code .n2{color:var(--gold-light)}.code .num{color:#c084fc}.code .c{color:#5b6472;font-style:italic}
+table.cmp{width:100%;border-collapse:collapse;margin-top:20px;font-size:clamp(13px,1.3vw,16px)}
+table.cmp th{font-family:'Space Grotesk',sans-serif;font-size:12px;text-transform:uppercase;letter-spacing:1px;color:var(--muted);text-align:left;padding:8px 14px;border-bottom:1px solid rgba(255,255,255,0.1)}
+table.cmp td{padding:12px 14px;border-bottom:1px solid rgba(255,255,255,0.06);color:rgba(249,250,251,0.82)}
+.big{font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:clamp(22px,2.6vw,32px);color:var(--gold-light);margin-top:14px}
+.brand{position:fixed;top:22px;right:34px;font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:14px;color:rgba(249,250,251,0.4);z-index:5}
+.brand span{color:var(--violet-light)}
+.controls{position:fixed;bottom:20px;left:0;right:0;display:flex;align-items:center;justify-content:center;gap:18px;z-index:10}
+.ctrl-btn{background:var(--surface);border:1px solid var(--border);color:var(--white);width:40px;height:40px;border-radius:50%;font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background .15s}
+.ctrl-btn:hover{background:rgba(124,58,237,0.25)}
+.counter{font-family:'Space Grotesk',sans-serif;font-size:13px;color:var(--muted);min-width:54px;text-align:center}
+.progress{position:fixed;top:0;left:0;height:3px;background:var(--violet-light);z-index:10;transition:width .25s}
+@media(max-width:760px){.grid2{grid-template-columns:1fr}.stats{grid-template-columns:1fr 1fr}}
+</style>
+</head>
+<body>
+<div class="progress" id="progress"></div>
+<div class="brand">Wise<span>Labs</span></div>
+<div class="deck" id="deck">
 
+<section class="slide active">
+  <div class="eyebrow">WiseLabs · AI Engineering · September 2026</div>
+  <h1>Jev — TypeSafe AI's<br><em>Machine-Native Model</em></h1>
+  <p class="sub">The model that refuses to talk. What it is, why it exists, and where it actually fits inside today's agentic loops and harnesses — plus the real cost and latency math.</p>
+</section>
+
+<section class="slide">
+  <div class="tag">01 · The Problem</div>
+  <h2>Agent Loops Are Slow and Expensive</h2>
+  <div class="flow">
+    <div class="box">LLM decides</div><div class="arrow">→</div>
+    <div class="box">Tool executes</div><div class="arrow">→</div>
+    <div class="box">LLM evaluates</div><div class="arrow">→</div>
+    <div class="box hi">repeat…</div>
+  </div>
+  <ul class="pts">
+    <li>Tool calling + structured outputs made LLMs wireable into software</li>
+    <li>But <strong>every decision in the loop still costs a full model call</strong></li>
+    <li>Most of those decisions aren't generation tasks — they're classification tasks wearing a chat-completion costume</li>
+  </ul>
+</section>
+
+<section class="slide">
+  <div class="tag">02 · The Answer</div>
+  <h2>Enter Jev — A "System One" Model</h2>
+  <div class="grid2">
+    <div>
+      <ul class="pts">
+        <li>No text generation — ever</li>
+        <li>Input: a <strong>state</strong> (context) + typed <strong>questions</strong></li>
+        <li>Output: typed, calibrated probabilities your code branches on directly</li>
+        <li>Trained with Reinforcement Learning for Calibrated Decisions (RLCD)</li>
+        <li>Built by Diogo Almeida (ex-OpenAI, RLHF co-inventor) at TypeSafe AI</li>
+      </ul>
+    </div>
+    <div class="code">
+{<br>
+&nbsp;&nbsp;<span class="n2">"state"</span>: <span class="s">"Deploy failed twice, customers seeing 500s"</span>,<br>
+&nbsp;&nbsp;<span class="n2">"questions"</span>: {<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="n2">"is_urgent"</span>: { <span class="n2">"type"</span>: <span class="s">"noul"</span> }<br>
+&nbsp;&nbsp;}<br>
+}<br>
+<span class="c">// → { "is_urgent": 0.999 }</span>
+    </div>
+  </div>
+</section>
+
+<section class="slide">
+  <div class="tag">03 · The Primitives</div>
+  <h2>Three Typed Questions, Nothing Else</h2>
+  <ul class="pts">
+    <li><strong>Noul</strong> — yes/no → probability the statement is true</li>
+    <li><strong>Choice</strong> — pick one option → per-option probability + confidence</li>
+    <li><strong>Score</strong> — rate against ordered levels → continuous score + distribution</li>
+  </ul>
+  <div class="note">Every real use case is built from these three. You can ask several in one request — evaluated in parallel, near-zero extra latency.</div>
+</section>
+
+<section class="slide">
+  <div class="tag">04 · Deep Dive</div>
+  <h2>Where Jev Fits in Today's Agentic Loop</h2>
+  <ul class="pts">
+    <li><strong>Model routing</strong> — Jev classifies request difficulty; cheap model for lookups, powerful model for hard reasoning</li>
+    <li><strong>Tool-call guardrails ("Auto Mode")</strong> — screens a risky action <em>before</em> it executes; block, allow, or hold for review</li>
+    <li><strong>Harness-level triage</strong> — the same "is this dangerous?" check that's long lived inside closed-source coding harnesses is now buildable into any agent</li>
+    <li><strong>Pre/post steps</strong> — classify intent before generation, review an agent's finished run before accepting it</li>
+  </ul>
+</section>
+
+<section class="slide">
+  <div class="tag">04 · Deep Dive, cont.</div>
+  <h2>Jev Inserted Into the Loop</h2>
+  <div class="flow">
+    <div class="box">Request in</div><div class="arrow">→</div>
+    <div class="box hi">Jev: route model</div><div class="arrow">→</div>
+    <div class="box">LLM plans + calls tool</div>
+  </div>
+  <div class="flow">
+    <div class="box">Tool call proposed</div><div class="arrow">→</div>
+    <div class="box hi">Jev: risk check</div><div class="arrow">→</div>
+    <div class="box">Execute / block / human review</div>
+  </div>
+  <div class="note">The LLM still does the reasoning and generation. Jev sits at every branch point in between — the spots that used to be too expensive to check at all.</div>
+</section>
+
+<section class="slide">
+  <div class="tag">05 · Deep Dive</div>
+  <h2>Cost &amp; Latency — The Real Numbers</h2>
+  <div class="stats">
+    <div class="stat"><div class="n">0.114s</div><div class="l">Jev demo response time</div></div>
+    <div class="stat"><div class="n">8.566s</div><div class="l">comparable chat LLM, same demo</div></div>
+    <div class="stat"><div class="n">$0.042</div><div class="l">per million input tokens · $0 output</div></div>
+  </div>
+  <div class="big">≈ 200x faster · ≈ 400x cheaper on classification tasks (TypeSafe's own comparison)</div>
+</section>
+
+<section class="slide">
+  <div class="tag">05 · Deep Dive, cont.</div>
+  <h2>Why the Price Actually Changes Behavior</h2>
+  <ul class="pts">
+    <li>1,000,000 calls × ~1,000 input tokens each ≈ <strong>$42</strong> before infra</li>
+    <li>Cheap enough to check <strong>every</strong> request, not just the expensive ones</li>
+    <li>Cheap enough to review <strong>every</strong> agent action before it's accepted</li>
+    <li>This is the Jevons paradox bet baked into the name — cheaper decisions → far more decisions get made, not fewer</li>
+  </ul>
+  <div class="callout-gold">Caveat: these are vendor-published launch numbers, not independent benchmarks. Validate speed, cost, and calibration on your own workload before trusting the thresholds.</div>
+</section>
+
+<section class="slide">
+  <div class="tag">06 · Landscape</div>
+  <h2>Jev vs. Fine-Tuned Classifier vs. Chat LLM</h2>
+  <table class="cmp">
+    <thead><tr><th>Dimension</th><th>Fine-tuned encoder</th><th>Chat LLM prompted</th><th>Jev</th></tr></thead>
+    <tbody>
+      <tr><td>Setup</td><td>Needs labeled data + training</td><td>Zero-shot prompt</td><td>Zero-shot typed question</td></tr>
+      <tr><td>Output</td><td>Fixed label set</td><td>Free text, needs parsing</td><td>Typed, calibrated probability</td></tr>
+      <tr><td>Change the task</td><td>Retrain</td><td>Edit prompt</td><td>Edit question</td></tr>
+      <tr><td>Latency/cost</td><td>Very low</td><td>High</td><td>Near-encoder speed, LLM flexibility</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<section class="slide">
+  <div class="tag">07 · Reality Check</div>
+  <h2>What to Watch Before You Ship It</h2>
+  <ul class="pts">
+    <li>Early access — API, pricing, and model versions are still moving</li>
+    <li>No explanation trace — you get a number, not a reason</li>
+    <li>Ecosystem is days old: official Python/JS SDKs, community jev-cli, LangChain, OpenRouter, Vercel AI Gateway</li>
+    <li>TypeSafe's own guidance: calibrate on your data, keep human fallback on high-impact actions</li>
+  </ul>
+</section>
+
+<section class="slide">
+  <div class="tag">Takeaway</div>
+  <h1>One Line to Remember</h1>
+  <p class="sub" style="font-size:clamp(18px,2.2vw,28px);color:rgba(249,250,251,0.85)">Jev doesn't replace your LLM — it replaces the hundreds of cheap yes/no decisions your agent was quietly paying full LLM price for.</p>
+  <div class="note" style="margin-top:40px">WiseLabs · AI Engineering — subscribe for the full walkthrough</div>
+</section>
+
+</div>
+<div class="controls">
+  <button class="ctrl-btn" onclick="go(-1)" aria-label="Previous">‹</button>
+  <div class="counter" id="counter">1 / 12</div>
+  <button class="ctrl-btn" onclick="go(1)" aria-label="Next">›</button>
+</div>
+<script>
+const slides=document.querySelectorAll('.slide');
+let i=0;
+function render(){
+  slides.forEach((s,idx)=>s.classList.toggle('active',idx===i));
+  document.getElementById('counter').textContent=(i+1)+' / '+slides.length;
+  document.getElementById('progress').style.width=((i+1)/slides.length*100)+'%';
+}
+function go(d){ i=Math.min(Math.max(i+d,0),slides.length-1); render(); }
+document.addEventListener('keydown',e=>{
+  if(e.key==='ArrowRight'||e.key===' ') go(1);
+  if(e.key==='ArrowLeft') go(-1);
+});
+render();
+</script>
+</body>
+</html>
